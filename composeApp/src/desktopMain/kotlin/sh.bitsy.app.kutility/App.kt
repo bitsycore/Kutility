@@ -65,7 +65,7 @@ private fun ToolsList(
     ScrollArea(state = state, Modifier.wrapContentWidth().background(Color.Black.copy(alpha = 0.80f))) {
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.width(100.dp)
+            modifier = Modifier.width(120.dp)
         ) {
             Tools.entries.forEach { tool ->
                 item(key = tool) {
