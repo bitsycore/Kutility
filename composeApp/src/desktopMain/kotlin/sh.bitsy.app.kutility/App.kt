@@ -3,6 +3,7 @@ package sh.bitsy.app.kutility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -69,7 +70,7 @@ fun main() = application {
                     stripeWidth = theme.bgStripWidth,
                 )
             ) {
-                Row(Modifier.background(theme.grayColor).fillMaxWidth()) {
+                Row(Modifier.background(theme.borderColor).border(4.dp, theme.borderColor).fillMaxWidth()) {
                     MenuBar(appState)
                 }
                 Row {
@@ -84,10 +85,30 @@ fun main() = application {
 
 @Composable
 private fun RowScope.MenuBar(appState: AppState) {
+    val appTheme = LocalAppTheme.current
+    Button(
+        onClick = {  },
+        enabled = false,
+        backgroundColor = appTheme.borderColor,
+        contentPadding = PaddingValues(8.dp)
+    ) {
+        Text("Theme")
+    }
 	AppThemeType.entries.forEach { themeType ->
 		Button(
 			onClick = { appState.setThemeType(themeType) },
-			contentPadding = PaddingValues(8.dp)
+			contentPadding = PaddingValues(8.dp),
+            modifier = Modifier.drawWithContent {
+                drawContent()
+                val thickness = 2.dp.toPx()
+                drawLine(
+                    color = appTheme.borderColor,
+                    start = Offset(size.width - thickness/2, 0f),
+                    end = Offset(size.width - thickness/2, size.height),
+                    strokeWidth = thickness
+                )
+            },
+            backgroundColor = appTheme.bg2Color.copy(alpha = 0.5f),
 		) {
 			Text(themeType.name.lowercase().replaceFirstChar { it.uppercase() })
 		}
@@ -109,17 +130,16 @@ private fun ToolsList(appState: AppState) {
             Tools.entries.forEach { tool ->
                 item(key = tool) {
                     val isSelected = currentTool == tool
-                    val isDisabled = tool != Tools.HASH
                     Button(
-                        enabled = !isDisabled,
+                        enabled = !tool.enabled.not(),
                         onClick = { currentTool = tool },
                         contentColor = when {
-                            isDisabled -> appTheme.disabledTextColor
+                            tool.enabled.not() -> appTheme.disabledTextColor
                             !isSelected -> appTheme.textColor
                             else -> appTheme.textColor
                         },
                         backgroundColor = when {
-                            isDisabled -> appTheme.disabledBgColor
+                            tool.enabled.not() -> appTheme.disabledBgColor
                             !isSelected -> appTheme.grayColor
                             else -> appTheme.bg2Color
                         },

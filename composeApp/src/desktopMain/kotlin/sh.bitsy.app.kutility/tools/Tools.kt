@@ -2,12 +2,13 @@ package sh.bitsy.app.kutility.tools
 
 import androidx.compose.runtime.Composable
 import sh.bitsy.app.kutility.AppState
-import sh.bitsy.app.kutility.tools.hash.HashScreen
 import sh.bitsy.app.kutility.tools.cipher.CipherScreen
+import sh.bitsy.app.kutility.tools.encoding.EncodingScreen
+import sh.bitsy.app.kutility.tools.hash.HashScreen
 
-enum class Tools(val toolScreen: @Composable (appState: AppState) -> Unit) {
-    HASH(@Composable { HashScreen(it) }),
-    CIPHER(@Composable { CipherScreen(it) }),
+enum class Tools(val toolScreen: @Composable (appState: AppState) -> Unit, val enabled: Boolean = false, ) {
+    HASH(@Composable { HashScreen(it) }, true),
+    ENCODING(@Composable { EncodingScreen(it) }, true),
     UUID(@Composable { CipherScreen(it) }),
     FORMAT(@Composable { CipherScreen(it) }),
     JSON(@Composable { CipherScreen(it) }),
