@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.composables.core.Icon
 import com.composables.core.Menu
 import com.composables.core.MenuButton
 import com.composables.core.MenuContent
@@ -39,9 +38,6 @@ import com.composeunstyled.Button
 import com.composeunstyled.Checkbox
 import com.composeunstyled.Text
 import kotlinx.coroutines.flow.MutableStateFlow
-import kutility.composeapp.generated.resources.Res
-import kutility.composeapp.generated.resources.compose_multiplatform
-import org.jetbrains.compose.resources.painterResource
 import sh.bitsy.app.kutility.AppState
 import sh.bitsy.app.kutility.TextField
 import sh.bitsy.app.kutility.extensions.collectAsMutableState
