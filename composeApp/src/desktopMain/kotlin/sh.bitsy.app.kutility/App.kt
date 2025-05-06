@@ -109,10 +109,20 @@ private fun ToolsList(appState: AppState) {
             Tools.entries.forEach { tool ->
                 item(key = tool) {
                     val isSelected = currentTool == tool
+                    val isDisabled = tool != Tools.HASH
                     Button(
+                        enabled = !isDisabled,
                         onClick = { currentTool = tool },
-                        contentColor = if (!isSelected) appTheme.textColor else appTheme.textColor,
-                        backgroundColor = if (!isSelected) appTheme.grayColor else appTheme.bg2Color,
+                        contentColor = when {
+                            isDisabled -> appTheme.disabledTextColor
+                            !isSelected -> appTheme.textColor
+                            else -> appTheme.textColor
+                        },
+                        backgroundColor = when {
+                            isDisabled -> appTheme.disabledBgColor
+                            !isSelected -> appTheme.grayColor
+                            else -> appTheme.bg2Color
+                        },
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         modifier = Modifier.fillMaxWidth()
                             .drawWithContent {

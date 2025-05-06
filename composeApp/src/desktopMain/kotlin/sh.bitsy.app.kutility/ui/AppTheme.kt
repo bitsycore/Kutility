@@ -35,9 +35,12 @@ data class AppTheme private constructor(
 	val bg1Color: Color,
 	val bg2Color: Color,
 	val borderColor: Color,
-	val grayColor: Color = Color(0xff808080),
+	val disabledBgColor: Color,
+	val disabledTextColor: Color,
+	val grayColor: Color,
 	val bgStripWidth: Dp = 3.dp
 ) {
+
 	private var _invertTheme: AppTheme? = null
 	val invertTheme: AppTheme get() = _invertTheme!!
 
@@ -49,6 +52,8 @@ data class AppTheme private constructor(
 			bg2Color = Color(0xFFF0F0F0),
 			borderColor = Color(0xFFBDBDBD),
 			grayColor = Color(0xffcccccc),
+			disabledBgColor = Color(0xffaaaaaa),
+			disabledTextColor = Color(0xff858585),
 		)
 		val DARK = AppTheme(
 			type = AppThemeType.DARK,
@@ -57,6 +62,8 @@ data class AppTheme private constructor(
 			bg2Color = Color(0xFF1E1E1E),
 			borderColor = Color(0xff404040),
 			grayColor = Color(0xff333333),
+			disabledBgColor = Color(0xff373434),
+			disabledTextColor = Color(0xff595757),
 		)
 
 		init {
