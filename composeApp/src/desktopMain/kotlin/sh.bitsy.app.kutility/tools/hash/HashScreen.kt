@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.composables.core.Icon
 import com.composables.core.Menu
 import com.composables.core.MenuButton
@@ -51,7 +52,7 @@ import java.security.NoSuchAlgorithmException
 data class HashScreenState(
     val inputText: MutableStateFlow<String> = MutableStateFlow(""),
     val outputText: MutableStateFlow<String> = MutableStateFlow(""),
-    val selectedAlgorithm: MutableStateFlow<HashAlgorithm> = MutableStateFlow(HashAlgorithm.availableAlgorithm.first()),
+    val selectedAlgorithm: MutableStateFlow<HashAlgorithm> = MutableStateFlow(HashAlgorithm.defaultAlgorithm),
     val autoConvert: MutableStateFlow<Boolean> = MutableStateFlow(false),
     val dropdownState: MenuState = MenuState(expanded = false)
 )
@@ -175,9 +176,18 @@ fun HashScreen(appState: AppState) {
                     modifier = Modifier.padding(horizontal = 8.dp).size(24.dp),
                     contentDescription = "Auto Convert"
                 ) {
-                    Icon(
-                        painterResource(Res.drawable.compose_multiplatform),
-                        contentDescription = null
+//                    Icon(
+//                        painterResource(Res.drawable.compose_multiplatform),
+//                        contentDescription = null
+//                    )
+                    Text(
+                        text = "✓",
+                        color = Color.Black,
+                        fontSize = 16.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxSize()
+                            .wrapContentHeight(align = Alignment.CenterVertically)
+                            .padding(2.dp)
                     )
                 }
 

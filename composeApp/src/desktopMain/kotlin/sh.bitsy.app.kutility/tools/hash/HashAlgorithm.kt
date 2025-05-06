@@ -11,5 +11,11 @@ value class HashAlgorithm(val name: String) {
                 .sortedBy { it.name }
                 .toSet()
         }
+
+        val defaultAlgorithm: HashAlgorithm by lazy {
+            availableAlgorithm.firstOrNull { it.name == "SHA-256" }
+                ?: availableAlgorithm.firstOrNull { it.name.contains("SHA") }
+                ?: availableAlgorithm.first()
+        }
     }
 }
