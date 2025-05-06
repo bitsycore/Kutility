@@ -38,7 +38,7 @@ compose.desktop {
         mainClass = "sh.bitsy.app.kutility.AppKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Exe)
             packageName = "sh.bitsy.app.kutility"
             packageVersion = "1.0.0"
         }
