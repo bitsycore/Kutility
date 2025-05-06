@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility
+package sh.bitsy.app.kutility.ui
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip

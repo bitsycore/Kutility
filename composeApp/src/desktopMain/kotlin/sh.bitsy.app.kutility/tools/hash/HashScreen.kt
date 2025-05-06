@@ -23,9 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,10 +34,12 @@ import com.composables.core.MenuItem
 import com.composables.core.MenuState
 import com.composeunstyled.Button
 import com.composeunstyled.Checkbox
+import com.composeunstyled.LocalContentColor
 import com.composeunstyled.Text
 import kotlinx.coroutines.flow.MutableStateFlow
 import sh.bitsy.app.kutility.AppState
-import sh.bitsy.app.kutility.TextField
+import sh.bitsy.app.kutility.ui.LocalAppTheme
+import sh.bitsy.app.kutility.ui.TextField
 import sh.bitsy.app.kutility.extensions.collectAsMutableState
 import sh.bitsy.app.kutility.extensions.toHex
 import java.security.MessageDigest.getInstance
@@ -52,21 +52,6 @@ data class HashScreenState(
     val autoConvert: MutableStateFlow<Boolean> = MutableStateFlow(false),
     val dropdownState: MenuState = MenuState(expanded = false)
 )
-
-fun DrawScope.drawDiagonalStripes() {
-    val stripeWidth = 40f
-    val colors = listOf(Color.Red, Color.Blue)
-
-    // Draw the diagonal stripes
-    for (i in 0..(size.width / stripeWidth).toInt()) {
-        drawLine(
-            color = colors[i % 2], // Alternate between the two colors
-            start = Offset(x = i * stripeWidth, y = 0f),
-            end = Offset(x = (i + 1) * stripeWidth, y = size.height),
-            strokeWidth = stripeWidth
-        )
-    }
-}
 
 @Composable
 fun HashScreen(appState: AppState) {
@@ -110,11 +95,11 @@ fun HashScreen(appState: AppState) {
             value = inputText,
             onValueChange = { inputText = it },
             placeholder = "Input Text",
-            borderColor = Color.Black,
+            borderColor = LocalAppTheme.current.borderColor,
             modifier = Modifier.fillMaxWidth().height(150.dp),
             singleLine = false,
             contentPadding = PaddingValues(8.dp),
-            backgroundColor = Color.White,
+            backgroundColor = LocalAppTheme.current.bg1Color,
             shape = RoundedCornerShape(8.dp),
             textAlign = TextAlign.Start
         )
@@ -130,8 +115,8 @@ fun HashScreen(appState: AppState) {
                 MenuButton(
                     Modifier
                         .clip(RoundedCornerShape(6.dp))
-                        .background(Color.White)
-                        .border(1.dp, Color(0xFFBDBDBD), RoundedCornerShape(6.dp))
+                        .background(LocalAppTheme.current.bg1Color)
+                        .border(1.dp, LocalAppTheme.current.borderColor, RoundedCornerShape(6.dp))
                 ) {
                     Text(
                         text = "Algorithm: ${selectedAlgorithm.name}",
@@ -141,7 +126,7 @@ fun HashScreen(appState: AppState) {
                 MenuContent(
                     modifier = Modifier.width(320.dp)
                         .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-                        .background(Color.White)
+                        .background(LocalAppTheme.current.bg1Color)
                         .padding(4.dp),
                     exit = fadeOut()
                 ) {
@@ -159,26 +144,20 @@ fun HashScreen(appState: AppState) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Auto Convert",
-                    textAlign = TextAlign.Center,
-                    color = Color.Black
+                    textAlign = TextAlign.Center
                 )
                 Checkbox(
                     checked = autoConvert,
                     onCheckedChange = { autoConvert = it },
                     shape = RoundedCornerShape(4.dp),
-                    backgroundColor = Color.White,
+                    backgroundColor = LocalAppTheme.current.bg1Color,
                     borderWidth = 1.dp,
-                    borderColor = Color.Black.copy(0.33f),
+                    borderColor = LocalAppTheme.current.borderColor,
                     modifier = Modifier.padding(horizontal = 8.dp).size(24.dp),
                     contentDescription = "Auto Convert"
                 ) {
-//                    Icon(
-//                        painterResource(Res.drawable.compose_multiplatform),
-//                        contentDescription = null
-//                    )
                     Text(
                         text = "✓",
-                        color = Color.Black,
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxSize()
@@ -189,10 +168,11 @@ fun HashScreen(appState: AppState) {
 
                 Button(
                     onClick = performHash,
-                    borderColor = Color(0xFFBDBDBD),
+                    borderColor = LocalAppTheme.current.borderColor,
                     borderWidth = 1.dp,
-                    backgroundColor = Color.White,
+                    backgroundColor = if (autoConvert) Color.DarkGray else LocalAppTheme.current.bg1Color,
                     contentPadding = PaddingValues(8.dp),
+                    contentColor = if (autoConvert) Color.Black else LocalContentColor.current,
                     shape = RoundedCornerShape(6.dp),
                     enabled = !autoConvert
                 ) {
@@ -204,9 +184,9 @@ fun HashScreen(appState: AppState) {
             value = outputText,
             onValueChange = {},
             placeholder = "Output Hash (Hex)",
-            borderColor = Color.Black,
+            borderColor = LocalAppTheme.current.borderColor,
             contentPadding = PaddingValues(8.dp),
-            backgroundColor = Color.White,
+            backgroundColor = LocalAppTheme.current.bg1Color,
             modifier = Modifier.fillMaxWidth().wrapContentHeight(),
             editable = true,
             singleLine = false,

@@ -1,13 +1,16 @@
 package sh.bitsy.app.kutility
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -31,87 +33,115 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.composeunstyled.Button
 import com.composeunstyled.Text
+import kutility.composeapp.generated.resources.Res
+import kutility.composeapp.generated.resources.compose_multiplatform
+import org.jetbrains.compose.resources.painterResource
 import sh.bitsy.app.kutility.extensions.collectAsMutableState
 import sh.bitsy.app.kutility.tools.Tools
-import kotlin.time.Duration
+import sh.bitsy.app.kutility.ui.AppTheme
+import sh.bitsy.app.kutility.ui.LocalAppTheme
+import sh.bitsy.app.kutility.ui.ProvideTheme
+import sh.bitsy.app.kutility.ui.diagonalPattern
+import kotlin.time.Duration.Companion.seconds
 
 fun main() = application {
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = "Kutility",
-    ) {
-        Row(
-            Modifier.diagonalPattern(
-                color1 = Color(0xFFFFFFFF),
-                color2 = Color(0xFFF0F0F0),
-                stripeWidth = 3.dp,
-            )
-        ) {
-            val appState = remember { AppState() }
-            ToolsList(appState)
-            CurrentTool(appState)
-        }
-    }
+	Window(
+		onCloseRequest = ::exitApplication,
+		title = "Kutility",
+		icon = painterResource(Res.drawable.compose_multiplatform),
+	) {
+		val theme = if (isSystemInDarkTheme()) AppTheme.darkTheme else AppTheme.lightTheme
+		ProvideTheme(theme) {
+			Column(
+				Modifier.fillMaxWidth().wrapContentHeight().diagonalPattern(
+					color1 = LocalAppTheme.current.bg1Color,
+					color2 = LocalAppTheme.current.bg2Color,
+					stripeWidth = LocalAppTheme.current.bgStripWidth,
+				)
+			) {
+				Row(Modifier.background(LocalAppTheme.current.grayColor).fillMaxWidth()) {
+					Button(
+						onClick = { println("TODO") },
+						contentPadding = PaddingValues(8.dp)
+					) {
+						Text("File")
+					}
+					Button(
+						onClick = { println("TODO") },
+						contentPadding = PaddingValues(8.dp)
+					) {
+						Text("Edit")
+					}
+				}
+				Row {
+					val appState = remember { AppState() }
+					ToolsList(appState)
+					CurrentTool(appState)
+				}
+			}
+		}
+
+	}
 }
 
 
 @Composable
 private fun ToolsList(
-    appState: AppState
+	appState: AppState
 ) {
-    val lazyListState = rememberLazyListState()
-    val state = rememberScrollAreaState(lazyListState)
-    var currentTool by appState.currentTool.collectAsMutableState()
-    ScrollArea(state = state, Modifier.wrapContentWidth().background(Color.Black.copy(alpha = 0.80f))) {
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier.width(120.dp)
-        ) {
-            Tools.entries.forEach { tool ->
-                item(key = tool) {
-                    val isSelected = currentTool == tool
-                    Button(
-                        onClick = { currentTool = tool },
-                        contentColor = if (!isSelected) Color.White else Color.Black,
-                        backgroundColor = if(!isSelected) Color.DarkGray else Color.LightGray,
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                            .drawWithContent {
-                                drawContent()
-                                val thickness = 1.dp.toPx()
-                                drawLine(
-                                    color = Color.Black,
-                                    start = Offset(0f, size.height - thickness / 2),
-                                    end = Offset(size.width, size.height - thickness / 2),
-                                    strokeWidth = thickness
-                                )
-                            }
-                    ) {
-                        Text(tool.name)
-                    }
-                }
-            }
-        }
-        VerticalScrollbar(
-            modifier = Modifier.align(Alignment.TopEnd)
-                .fillMaxHeight()
-                .width(8.dp)
-        ) {
-            Thumb(
-                Modifier.background(Color.LightGray),
-                ThumbVisibility.HideWhileIdle(
-                    EnterTransition.None,
-                    ExitTransition.None,
-                    Duration.ZERO
-                )
-            )
-        }
-    }
+	val appTheme = LocalAppTheme.current
+	val lazyListState = rememberLazyListState()
+	val state = rememberScrollAreaState(lazyListState)
+	var currentTool by appState.currentTool.collectAsMutableState()
+	ScrollArea(state = state, Modifier.wrapContentWidth()) {
+		LazyColumn(
+			state = lazyListState,
+			modifier = Modifier.width(100.dp)
+		) {
+			Tools.entries.forEach { tool ->
+				item(key = tool) {
+					val isSelected = currentTool == tool
+					Button(
+						onClick = { currentTool = tool },
+						contentColor = if (!isSelected) appTheme.textColor else appTheme.textColor,
+						backgroundColor = if (!isSelected) appTheme.grayColor else appTheme.bg2Color,
+						contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+						modifier = Modifier.fillMaxWidth()
+							.drawWithContent {
+								drawContent()
+								val thickness = 1.dp.toPx()
+								drawLine(
+									color = appTheme.borderColor,
+									start = Offset(0f, size.height - thickness / 2),
+									end = Offset(size.width, size.height - thickness / 2),
+									strokeWidth = thickness
+								)
+							}
+					) {
+						Text(tool.name.lowercase().replaceFirstChar { it.uppercase() })
+					}
+				}
+			}
+		}
+		VerticalScrollbar(
+			modifier = Modifier.align(Alignment.TopEnd)
+				.fillMaxHeight()
+				.width(4.dp)
+		) {
+			Thumb(
+				Modifier.background(LocalAppTheme.current.textColor),
+				ThumbVisibility.HideWhileIdle(
+					fadeIn(),
+					fadeOut(),
+					0.5.seconds,
+				)
+			)
+		}
+	}
 }
-
 
 @Composable
 fun CurrentTool(appState: AppState) {
-    val currentTool by appState.currentTool.collectAsState()
-    currentTool.toolScreen(appState)
+	val currentTool by appState.currentTool.collectAsState()
+	currentTool.toolScreen(appState)
 }

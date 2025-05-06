@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility
+package sh.bitsy.app.kutility.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
