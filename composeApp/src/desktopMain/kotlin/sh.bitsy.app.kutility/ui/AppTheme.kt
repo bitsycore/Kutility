@@ -8,7 +8,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.composeunstyled.LocalContentColor
 
-val LocalAppTheme = staticCompositionLocalOf { AppTheme.lightTheme }
+enum class AppThemeType {
+	SYSTEM,
+	LIGHT,
+	DARK
+}
+
+val LocalAppTheme = staticCompositionLocalOf { AppTheme.LIGHT }
 
 @Composable
 fun ProvideTheme(
@@ -24,6 +30,7 @@ fun ProvideTheme(
 
 @ConsistentCopyVisibility
 data class AppTheme private constructor(
+	val type: AppThemeType,
 	val textColor: Color,
 	val bg1Color: Color,
 	val bg2Color: Color,
@@ -35,14 +42,16 @@ data class AppTheme private constructor(
 	val invertTheme: AppTheme get() = _invertTheme!!
 
 	companion object {
-		val lightTheme = AppTheme(
+		val LIGHT = AppTheme(
+			type = AppThemeType.LIGHT,
 			textColor = Color(0xFF000000),
 			bg1Color = Color(0xFFFFFFFF),
 			bg2Color = Color(0xFFF0F0F0),
 			borderColor = Color(0xFFBDBDBD),
 			grayColor = Color(0xffcccccc),
 		)
-		val darkTheme = AppTheme(
+		val DARK = AppTheme(
+			type = AppThemeType.DARK,
 			textColor = Color(0xFFFFFFFF),
 			bg1Color = Color(0xFF121212),
 			bg2Color = Color(0xFF1E1E1E),
@@ -51,8 +60,8 @@ data class AppTheme private constructor(
 		)
 
 		init {
-			lightTheme._invertTheme = darkTheme
-			darkTheme._invertTheme = lightTheme
+			LIGHT._invertTheme = DARK
+			DARK._invertTheme = LIGHT
 		}
 	}
 }

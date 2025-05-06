@@ -20,10 +20,10 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation("com.composables:core:1.29.0")
+            implementation("org.mapdb:mapdb:3.1.0")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs){
