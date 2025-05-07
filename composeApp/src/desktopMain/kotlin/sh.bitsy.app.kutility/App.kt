@@ -33,7 +33,9 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.composeunstyled.Button
 import com.composeunstyled.Text
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kutility.composeapp.generated.resources.Res
 import kutility.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
@@ -47,15 +49,15 @@ import sh.bitsy.app.kutility.ui.ProvideTheme
 import sh.bitsy.app.kutility.ui.diagonalPattern
 import kotlin.time.Duration.Companion.seconds
 
-
+val coroutineScope = CoroutineScope(Dispatchers.IO)
 
 fun main() = application {
     Window(
         onCloseRequest = {
-            runBlocking {
+            coroutineScope.launch {
                 flushAllStorages()
+                exitApplication()
             }
-            exitApplication()
         },
         title = "Kutility",
         icon = painterResource(Res.drawable.compose_multiplatform),
