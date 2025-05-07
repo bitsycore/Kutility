@@ -17,36 +17,37 @@ import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
 abstract class LocalStorage {
-    abstract val fileName : String
+    abstract val companyName: String
+    abstract val appName: String
+    abstract val fileName: String
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val settingsAccessMutex = Mutex()
     private val fileSaveMutex = Mutex()
     private val jsonSerializer = Json { prettyPrint = true; ignoreUnknownKeys = true }
-    private var mapCache : MutableMap<String, String>? = null
+    private var mapCache: MutableMap<String, String>? = null
 
     private val fullPath: String by lazy {
         val os = System.getProperty("os.name", "unknown").lowercase()
         val userHome = System.getProperty("user.home", ".")
 
-        // Determine the root directory for application data based on OS
+        // OS-specific paths
         val appDataRootPath = when {
             os.contains("win") -> System.getenv("APPDATA") ?: File(userHome, "AppData/Roaming").path
             os.contains("mac") -> File(userHome, "Library/Application Support").path
             os.contains("nix") || os.contains("nux") -> File(userHome, ".config").path
-            else -> File(userHome, ".kutility_app_settings").path // fallback
+            else -> File(userHome, ".$companyName.$appName").path // fallback
         }
 
-        // Construct the full path using File objects for platform-independent path separators
-        val appDataRoot = File(appDataRootPath)
-        val bitsyAppDir = File(appDataRoot, "sh.bitsy")
-        val kutilityDir = File(bitsyAppDir, "kutility")
+        val appDataRootDir = File(appDataRootPath)
+        val companyDir = File(appDataRootDir, companyName)
+        val appDir = File(companyDir, appName)
 
         // Ensure the directory structure exists
-        if (!kutilityDir.exists()) {
-            kutilityDir.mkdirs() // This will create parent directories if they don't exist
+        if (!appDir.exists()) {
+            appDir.mkdirs()
         }
 
-        File(kutilityDir, fileName).absolutePath
+        File(appDir, "$fileName.json").absolutePath
     }
 
     private suspend fun loadMapFromFile(): MutableMap<String, String> {
@@ -65,40 +66,41 @@ abstract class LocalStorage {
                         mapCache = mutableMapOf()
                         return@withContext mapCache!!
                     }
-                    mapCache = jsonSerializer.decodeFromString<Map<String, String>>(fileContent).toMutableMap()
+                    mapCache = jsonSerializer.decodeFromString<Map<String, String>>(fileContent)
+                        .toMutableMap()
                     mapCache!!
                 } catch (e: IOException) {
                     System.err.println("Error loading settings from $fullPath: ${e.message}")
-                    mapCache=mutableMapOf()
+                    mapCache = mutableMapOf()
                     mapCache!!
                 } catch (e: SerializationException) {
                     System.err.println("Error deserializing settings from $fullPath (file might be corrupted): ${e.message}")
                     File(fullPath).renameTo(File("$fullPath.corrupted.${System.currentTimeMillis()}"))
-                    mapCache=mutableMapOf()
+                    mapCache = mutableMapOf()
                     mapCache!!
                 }
-            }}
+            }
+        }
     }
 
-    private fun saveMapToFile() {
-        coroutineScope.launch {
-            fileSaveMutex.withLock {
-                try {
-                    val file = File(fullPath)
-                    file.parentFile?.mkdirs()
-                    val jsonString = jsonSerializer.encodeToString(mapCache!!)
-                    file.writeText(jsonString)
-                } catch (e: IOException) {
-                    System.err.println("Error saving settings to $fullPath: ${e.message}")
-                } catch (e: SerializationException) {
-                    System.err.println("Error serializing settings to $fullPath: ${e.message}")
-                }
+    private suspend fun saveMapToFile() {
+        fileSaveMutex.withLock {
+            try {
+                val file = File(fullPath)
+                file.parentFile?.mkdirs()
+                val jsonString = jsonSerializer.encodeToString(mapCache!!)
+                file.writeText(jsonString)
+            } catch (e: IOException) {
+                System.err.println("Error saving settings to $fullPath: ${e.message}")
+            } catch (e: SerializationException) {
+                System.err.println("Error serializing settings to $fullPath: ${e.message}")
             }
         }
     }
 
     private suspend inline fun <T> accessSettings(
         isWriteOperation: Boolean,
+        waitForSave: Boolean = false,
         crossinline block: suspend (settingsMap: MutableMap<String, String>) -> T
     ): T {
         return settingsAccessMutex.withLock {
@@ -107,7 +109,13 @@ abstract class LocalStorage {
 
             // Save changes if it was a write operation
             if (isWriteOperation) {
-                saveMapToFile()
+                if (waitForSave) {
+                    saveMapToFile()
+                } else {
+                    coroutineScope.launch {
+                        saveMapToFile()
+                    }
+                }
             }
 
             result
@@ -122,17 +130,19 @@ abstract class LocalStorage {
         map[key] ?: throw IllegalArgumentException("Key '$key' not found in local storage")
     }
 
-    suspend fun getOrPut(key: String, value: String): String = accessSettings(isWriteOperation = true) { map ->
-        map.getOrPut(key) { value }
-    }
+    suspend fun getOrPut(key: String, value: String, waitForSave: Boolean = false): String =
+        accessSettings(isWriteOperation = true, waitForSave) { map ->
+            map.getOrPut(key) { value }
+        }
 
     suspend fun getOrNull(key: String): String? = accessSettings(isWriteOperation = false) { map ->
         map[key]
     }
 
-    suspend fun getOrDefault(key: String, defaultValue: String): String = accessSettings(isWriteOperation = false) { map ->
-        map.getOrDefault(key, defaultValue)
-    }
+    suspend fun getOrDefault(key: String, defaultValue: String): String =
+        accessSettings(isWriteOperation = false) { map ->
+            map.getOrDefault(key, defaultValue)
+        }
 
     suspend fun getAll(): Map<String, String> = accessSettings(isWriteOperation = false) { map ->
         map.toMap()
@@ -142,13 +152,23 @@ abstract class LocalStorage {
     // Set operations
     // =============================================
 
-    suspend fun put(key: String, value: String): String? = accessSettings(isWriteOperation = true) { map ->
-        map.put(key, value)
-    }
+    suspend fun put(key: String, value: String, waitForSave: Boolean = false): String? =
+        accessSettings(isWriteOperation = true, waitForSave) { map ->
+            map.put(key, value)
+        }
 
-    suspend inline fun <reified T : @Serializable Any> put(key: String, value: T): String? = put(key, value, typeOf<T>())
+    suspend inline fun <reified T : @Serializable Any> put(
+        key: String,
+        value: T,
+        waitForSave: Boolean = false
+    ): String? = put(key, value, typeOf<T>(), waitForSave)
 
-    suspend fun <T : @Serializable Any> put(key: String, value: T, kType: KType): String? = accessSettings(isWriteOperation = true) { map ->
+    suspend fun <T : @Serializable Any> put(
+        key: String,
+        value: T,
+        kType: KType,
+        waitForSave: Boolean = false
+    ): String? = accessSettings(isWriteOperation = true, waitForSave) { map ->
         map.put(key, jsonSerializer.encodeToString(serializer(kType), value))
     }
 
@@ -164,12 +184,13 @@ abstract class LocalStorage {
     // Remove operations
     // ===============================================
 
-    suspend fun remove(key: String): String? = accessSettings(isWriteOperation = true) { map ->
-        map.remove(key)
-    }
+    suspend fun remove(key: String, waitForSave: Boolean = false): String? =
+        accessSettings(isWriteOperation = true, waitForSave) { map ->
+            map.remove(key)
+        }
 
-    suspend fun clear() = accessSettings(isWriteOperation = true) { map ->
-        map.clear()
-    }
+    suspend fun clear(waitForSave: Boolean = false) =
+        accessSettings(isWriteOperation = true, waitForSave) { map ->
+            map.clear()
+        }
 }
-
