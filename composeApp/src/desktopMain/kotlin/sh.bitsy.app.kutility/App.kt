@@ -3,16 +3,14 @@ package sh.bitsy.app.kutility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -64,13 +62,13 @@ fun main() = application {
         ) {
             val theme = LocalAppTheme.current
             Column(
-                Modifier.fillMaxWidth().wrapContentHeight().diagonalPattern(
+                Modifier.fillMaxWidth().diagonalPattern(
                     color1 = theme.bg1Color,
                     color2 = theme.bg2Color,
                     stripeWidth = theme.bgStripWidth,
                 )
             ) {
-                Row(Modifier.background(theme.borderColor).border(4.dp, theme.borderColor).fillMaxWidth()) {
+                Row(Modifier.background(theme.borderColor).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     MenuBar(appState)
                 }
                 Row {
@@ -84,7 +82,7 @@ fun main() = application {
 }
 
 @Composable
-private fun RowScope.MenuBar(appState: AppState) {
+private fun MenuBar(appState: AppState) {
     val appTheme = LocalAppTheme.current
     Button(
         onClick = {  },
@@ -98,17 +96,9 @@ private fun RowScope.MenuBar(appState: AppState) {
 		Button(
 			onClick = { appState.setThemeType(themeType) },
 			contentPadding = PaddingValues(8.dp),
-            modifier = Modifier.drawWithContent {
-                drawContent()
-                val thickness = 2.dp.toPx()
-                drawLine(
-                    color = appTheme.borderColor,
-                    start = Offset(size.width - thickness/2, 0f),
-                    end = Offset(size.width - thickness/2, size.height),
-                    strokeWidth = thickness
-                )
-            },
+            modifier = Modifier.padding(vertical = 4.dp, horizontal = 4.dp),
             backgroundColor = appTheme.bg2Color.copy(alpha = 0.5f),
+            shape = appTheme.buttonShape,
 		) {
 			Text(themeType.name.lowercase().replaceFirstChar { it.uppercase() })
 		}

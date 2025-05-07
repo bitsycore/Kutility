@@ -2,10 +2,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.reload.ComposeHotRun
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.kotlinComposeCompiler)
-    alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.plugin.compose)
+    alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.compose.hot.reload)
 }
 
 kotlin {
@@ -13,23 +14,23 @@ kotlin {
 
     sourceSets {
         val desktopMain by getting
-
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
-            implementation("com.composables:core:1.29.0")
-            implementation("org.mapdb:mapdb:3.1.0")
+
+            implementation(libs.compose.unstyled)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.serialization.json)
+
+            kotlin("reflect")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs){
                     exclude("org.jetbrains.compose.material")
             }
-            implementation(libs.kotlinx.coroutines.swing)
         }
     }
 }

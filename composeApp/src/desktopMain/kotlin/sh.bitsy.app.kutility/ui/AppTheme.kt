@@ -1,9 +1,11 @@
 package sh.bitsy.app.kutility.ui
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.composeunstyled.LocalContentColor
@@ -11,7 +13,7 @@ import com.composeunstyled.LocalContentColor
 enum class AppThemeType {
 	SYSTEM,
 	LIGHT,
-	DARK
+	DARK;
 }
 
 val LocalAppTheme = staticCompositionLocalOf { AppTheme.LIGHT }
@@ -38,9 +40,9 @@ data class AppTheme private constructor(
 	val disabledBgColor: Color,
 	val disabledTextColor: Color,
 	val grayColor: Color,
-	val bgStripWidth: Dp = 3.dp
+	val bgStripWidth: Dp = 3.dp,
+	val buttonShape: Shape = RoundedCornerShape(8.dp)//(8.dp),
 ) {
-
 	private var _invertTheme: AppTheme? = null
 	val invertTheme: AppTheme get() = _invertTheme!!
 
