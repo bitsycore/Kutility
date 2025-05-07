@@ -33,10 +33,12 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.composeunstyled.Button
 import com.composeunstyled.Text
+import kotlinx.coroutines.runBlocking
 import kutility.composeapp.generated.resources.Res
 import kutility.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import sh.bitsy.app.kutility.extensions.collectAsMutableState
+import sh.bitsy.app.kutility.local.flushAllStorages
 import sh.bitsy.app.kutility.tools.Tools
 import sh.bitsy.app.kutility.ui.AppTheme
 import sh.bitsy.app.kutility.ui.AppThemeType
@@ -45,9 +47,16 @@ import sh.bitsy.app.kutility.ui.ProvideTheme
 import sh.bitsy.app.kutility.ui.diagonalPattern
 import kotlin.time.Duration.Companion.seconds
 
+
+
 fun main() = application {
     Window(
-        onCloseRequest = ::exitApplication,
+        onCloseRequest = {
+            runBlocking {
+                flushAllStorages()
+            }
+            exitApplication()
+        },
         title = "Kutility",
         icon = painterResource(Res.drawable.compose_multiplatform),
     ) {

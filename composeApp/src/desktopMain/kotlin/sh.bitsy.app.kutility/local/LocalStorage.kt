@@ -2,6 +2,7 @@ package sh.bitsy.app.kutility.local
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -25,6 +26,8 @@ abstract class LocalStorage {
     private val fileSaveMutex = Mutex()
     private val jsonSerializer = Json { prettyPrint = true; ignoreUnknownKeys = true }
     private var mapCache: MutableMap<String, String>? = null
+
+    private var pendingSaveJob: Job? = null
 
     private val fullPath: String by lazy {
         val os = System.getProperty("os.name", "unknown").lowercase()
@@ -84,11 +87,12 @@ abstract class LocalStorage {
     }
 
     private suspend fun saveMapToFile() {
+        val currentMapToSave = mapCache ?: return
         fileSaveMutex.withLock {
             try {
                 val file = File(fullPath)
                 file.parentFile?.mkdirs()
-                val jsonString = jsonSerializer.encodeToString(mapCache!!)
+                val jsonString = jsonSerializer.encodeToString(currentMapToSave)
                 file.writeText(jsonString)
             } catch (e: IOException) {
                 System.err.println("Error saving settings to $fullPath: ${e.message}")
@@ -102,24 +106,25 @@ abstract class LocalStorage {
         isWriteOperation: Boolean,
         waitForSave: Boolean = false,
         crossinline block: suspend (settingsMap: MutableMap<String, String>) -> T
-    ): T {
-        return settingsAccessMutex.withLock {
-            val map = loadMapFromFile()
-            val result = block(map)
+    ): T = settingsAccessMutex.withLock {
+        val map = loadMapFromFile()
+        val result = block(map)
 
-            // Save changes if it was a write operation
-            if (isWriteOperation) {
-                if (waitForSave) {
+        // Save changes if it was a write operation
+        if (isWriteOperation) {
+            if (waitForSave) {
+                pendingSaveJob?.cancel()
+                pendingSaveJob = null
+                saveMapToFile()
+            } else {
+                pendingSaveJob?.cancel()
+                pendingSaveJob = coroutineScope.launch {
                     saveMapToFile()
-                } else {
-                    coroutineScope.launch {
-                        saveMapToFile()
-                    }
                 }
             }
-
-            result
         }
+
+        return result
     }
 
     // =============================================
@@ -178,6 +183,13 @@ abstract class LocalStorage {
 
     suspend fun contains(key: String): Boolean = accessSettings(isWriteOperation = false) { map ->
         map.containsKey(key)
+    }
+
+    suspend fun flush() {
+        settingsAccessMutex.withLock {
+            pendingSaveJob?.join()
+            pendingSaveJob = null
+        }
     }
 
     // ===============================================

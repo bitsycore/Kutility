@@ -8,3 +8,5 @@ abstract class KutilityStorage : LocalStorage() {
 object SettingsStorage : KutilityStorage() {
     override val fileName: String = "settings"
 }
+
+suspend fun flushAllStorages() = SettingsStorage.flush()
