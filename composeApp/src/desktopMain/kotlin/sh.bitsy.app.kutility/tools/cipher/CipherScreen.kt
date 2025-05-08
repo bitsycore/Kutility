@@ -12,5 +12,5 @@ import sh.bitsy.app.kutility.AppState
 @Composable
 @Suppress("NOTHING_TO_INLINE")
 inline fun CipherScreen(appState: AppState) = Box(Modifier.fillMaxSize()) {
-    Text("TODO", modifier = Modifier.align(Alignment.Center), fontSize = 24.sp)
+	Text("TODO", modifier = Modifier.align(Alignment.Center), fontSize = 24.sp)
 }

@@ -46,168 +46,168 @@ import com.composeunstyled.LocalTextStyle
 import com.composeunstyled.Text
 
 fun buildModifier(builder: MutableList<Modifier>.() -> Unit): Modifier {
-    val list = mutableListOf<Modifier>()
-    builder(list)
-    return list.fold(Modifier as Modifier) { acc, modifier ->
-        acc then modifier
-    }
+	val list = mutableListOf<Modifier>()
+	builder(list)
+	return list.fold(Modifier as Modifier) { acc, modifier ->
+		acc then modifier
+	}
 }
 
 @Composable
 fun TextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    editable: Boolean = true,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    placeholder: String = "",
-    contentColor: Color = LocalContentColor.current,
-    disabledColor: Color = contentColor.copy(0.66f),
-    backgroundColor: Color = Color.Unspecified,
-    borderWidth: Dp = 1.dp,
-    borderColor: Color = Color.Unspecified,
-    shape: Shape = RectangleShape,
-    textStyle: TextStyle = LocalTextStyle.current,
-    textAlign: TextAlign = TextAlign.Unspecified,
-    fontSize: TextUnit = TextUnit.Unspecified,
-    fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
-    singleLine: Boolean = false,
-    minLines: Int = 1,
-    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    spacing: Dp = 8.dp,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
+	value: String,
+	onValueChange: (String) -> Unit,
+	editable: Boolean = true,
+	modifier: Modifier = Modifier,
+	contentPadding: PaddingValues = PaddingValues(0.dp),
+	leadingIcon: @Composable (() -> Unit)? = null,
+	trailingIcon: @Composable (() -> Unit)? = null,
+	placeholder: String = "",
+	contentColor: Color = LocalContentColor.current,
+	disabledColor: Color = contentColor.copy(0.66f),
+	backgroundColor: Color = Color.Unspecified,
+	borderWidth: Dp = 1.dp,
+	borderColor: Color = Color.Unspecified,
+	shape: Shape = RectangleShape,
+	textStyle: TextStyle = LocalTextStyle.current,
+	textAlign: TextAlign = TextAlign.Unspecified,
+	fontSize: TextUnit = TextUnit.Unspecified,
+	fontWeight: FontWeight? = null,
+	fontFamily: FontFamily? = null,
+	singleLine: Boolean = false,
+	minLines: Int = 1,
+	maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+	keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+	keyboardActions: KeyboardActions = KeyboardActions.Default,
+	interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+	spacing: Dp = 8.dp,
+	visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
-    val overrideContentColor = if (contentColor.isSpecified) {
-        contentColor
-    } else if (textStyle.color.isSpecified) {
-        textStyle.color
-    } else {
-        LocalContentColor.current
-    }
+	val overrideContentColor = if (contentColor.isSpecified) {
+		contentColor
+	} else if (textStyle.color.isSpecified) {
+		textStyle.color
+	} else {
+		LocalContentColor.current
+	}
 
-    val overrideTextAlign = if (textAlign != TextAlign.Unspecified) {
-        textAlign
-    } else textStyle.textAlign
+	val overrideTextAlign = if (textAlign != TextAlign.Unspecified) {
+		textAlign
+	} else textStyle.textAlign
 
-    val overrideFontSize = if (fontSize != TextUnit.Unspecified) {
-        fontSize
-    } else textStyle.fontSize
+	val overrideFontSize = if (fontSize != TextUnit.Unspecified) {
+		fontSize
+	} else textStyle.fontSize
 
-    val overrideFontWeight = fontWeight ?: textStyle.fontWeight
-    val overrideFontFamily = fontFamily ?: textStyle.fontFamily
+	val overrideFontWeight = fontWeight ?: textStyle.fontWeight
+	val overrideFontFamily = fontFamily ?: textStyle.fontFamily
 
-    val overriddenStyle = textStyle.merge(
-        fontWeight = overrideFontWeight,
-        fontSize = overrideFontSize,
-        fontFamily = overrideFontFamily,
-        textAlign = overrideTextAlign,
-        color = overrideContentColor
-    )
+	val overriddenStyle = textStyle.merge(
+		fontWeight = overrideFontWeight,
+		fontSize = overrideFontSize,
+		fontFamily = overrideFontFamily,
+		textAlign = overrideTextAlign,
+		color = overrideContentColor
+	)
 
-    var wasEditable by remember { mutableStateOf(editable) }
-    var textRange by remember { mutableStateOf(TextRange(value.length, value.length)) }
-    var isFocusedOnIcon by remember { mutableStateOf(false) }
+	var wasEditable by remember { mutableStateOf(editable) }
+	var textRange by remember { mutableStateOf(TextRange(value.length, value.length)) }
+	var isFocusedOnIcon by remember { mutableStateOf(false) }
 
-    LaunchedEffect(editable) {
-        if (wasEditable.not() && editable) {
-            // just changed to editable. select all text
-            textRange = TextRange(0, value.length)
-        }
-        wasEditable = editable
-    }
+	LaunchedEffect(editable) {
+		if (wasEditable.not() && editable) {
+			// just changed to editable. select all text
+			textRange = TextRange(0, value.length)
+		}
+		wasEditable = editable
+	}
 
-    if (editable) {
-        val textFieldValue by derivedStateOf { TextFieldValue(value, textRange) }
+	if (editable) {
+		val textFieldValue by derivedStateOf { TextFieldValue(value, textRange) }
 
-        BasicTextField(
-            value = textFieldValue,
-            onValueChange = {
-                if (isFocusedOnIcon.not()) {
-                    onValueChange(it.text)
-                    textRange = it.selection
-                }
-            },
-            textStyle = overriddenStyle,
-            modifier = modifier,
-            singleLine = singleLine,
-            maxLines = maxLines,
-            minLines = minLines,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            interactionSource = interactionSource,
-            visualTransformation = visualTransformation
-        ) { innerTextField ->
-            Row(
-                verticalAlignment = Alignment.Top,
-                modifier = buildModifier {
-                    if (borderWidth.isSpecified && borderWidth > 0.dp && borderColor.isSpecified) {
-                        add(Modifier.border(borderWidth, borderColor, shape))
-                    }
-                    add(Modifier.background(backgroundColor, shape))
+		BasicTextField(
+			value = textFieldValue,
+			onValueChange = {
+				if (isFocusedOnIcon.not()) {
+					onValueChange(it.text)
+					textRange = it.selection
+				}
+			},
+			textStyle = overriddenStyle,
+			modifier = modifier,
+			singleLine = singleLine,
+			maxLines = maxLines,
+			minLines = minLines,
+			keyboardOptions = keyboardOptions,
+			keyboardActions = keyboardActions,
+			interactionSource = interactionSource,
+			visualTransformation = visualTransformation
+		) { innerTextField ->
+			Row(
+				verticalAlignment = Alignment.Top,
+				modifier = buildModifier {
+					if (borderWidth.isSpecified && borderWidth > 0.dp && borderColor.isSpecified) {
+						add(Modifier.border(borderWidth, borderColor, shape))
+					}
+					add(Modifier.background(backgroundColor, shape))
 
-                    if (editable.not()) {
-                        add(Modifier.pointerHoverIcon(PointerIcon.Default))
-                    }
-                    add(Modifier.padding(contentPadding))
-                },
-                horizontalArrangement = Arrangement.spacedBy(spacing),
-            ) {
-                if (leadingIcon != null) {
-                    Box(Modifier.onFocusChanged { isFocusedOnIcon = it.hasFocus }) {
-                        leadingIcon()
-                    }
-                }
-                Box(Modifier.weight(1f).semantics(mergeDescendants = true) { }) {
-                    innerTextField()
-                    if (value.isEmpty()) {
-                        Text(
-                            text = placeholder,
-                            style = overriddenStyle,
-                            minLines = minLines,
-                            maxLines = maxLines,
-                            color = overrideContentColor.copy(alpha = 0.66f)
-                        )
-                    }
-                }
-                if (trailingIcon != null) {
-                    Box(Modifier.onFocusChanged { isFocusedOnIcon = it.hasFocus }) {
-                        trailingIcon()
-                    }
-                }
-            }
-        }
-    } else {
-        Row(
-            verticalAlignment = Alignment.Top,
-            modifier = modifier then buildModifier {
-                if (borderWidth.isSpecified && borderWidth > 0.dp && borderColor.isSpecified) {
-                    add(Modifier.border(borderWidth, borderColor, shape))
-                }
-                add(Modifier.background(backgroundColor, shape))
-            }.widthIn(min = 2.dp) // width for the cursor blink
-                .focusable(interactionSource = interactionSource).padding(contentPadding),
-            horizontalArrangement = Arrangement.spacedBy(spacing),
-        ) {
-            if (leadingIcon != null) {
-                leadingIcon()
-            }
-            Text(
-                text = value.ifBlank { placeholder },
-                style = overriddenStyle,
-                color = disabledColor,
-                modifier = Modifier.weight(1f),
-                minLines = minLines,
-                maxLines = maxLines,
-            )
-            if (trailingIcon != null) {
-                trailingIcon()
-            }
-        }
-    }
+					if (editable.not()) {
+						add(Modifier.pointerHoverIcon(PointerIcon.Default))
+					}
+					add(Modifier.padding(contentPadding))
+				},
+				horizontalArrangement = Arrangement.spacedBy(spacing),
+			) {
+				if (leadingIcon != null) {
+					Box(Modifier.onFocusChanged { isFocusedOnIcon = it.hasFocus }) {
+						leadingIcon()
+					}
+				}
+				Box(Modifier.weight(1f).semantics(mergeDescendants = true) { }) {
+					innerTextField()
+					if (value.isEmpty()) {
+						Text(
+							text = placeholder,
+							style = overriddenStyle,
+							minLines = minLines,
+							maxLines = maxLines,
+							color = overrideContentColor.copy(alpha = 0.66f)
+						)
+					}
+				}
+				if (trailingIcon != null) {
+					Box(Modifier.onFocusChanged { isFocusedOnIcon = it.hasFocus }) {
+						trailingIcon()
+					}
+				}
+			}
+		}
+	} else {
+		Row(
+			verticalAlignment = Alignment.Top,
+			modifier = modifier then buildModifier {
+				if (borderWidth.isSpecified && borderWidth > 0.dp && borderColor.isSpecified) {
+					add(Modifier.border(borderWidth, borderColor, shape))
+				}
+				add(Modifier.background(backgroundColor, shape))
+			}.widthIn(min = 2.dp) // width for the cursor blink
+				.focusable(interactionSource = interactionSource).padding(contentPadding),
+			horizontalArrangement = Arrangement.spacedBy(spacing),
+		) {
+			if (leadingIcon != null) {
+				leadingIcon()
+			}
+			Text(
+				text = value.ifBlank { placeholder },
+				style = overriddenStyle,
+				color = disabledColor,
+				modifier = Modifier.weight(1f),
+				minLines = minLines,
+				maxLines = maxLines,
+			)
+			if (trailingIcon != null) {
+				trailingIcon()
+			}
+		}
+	}
 }

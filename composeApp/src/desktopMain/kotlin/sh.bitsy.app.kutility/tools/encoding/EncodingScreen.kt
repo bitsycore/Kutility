@@ -48,188 +48,188 @@ import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 enum class Encoding {
-    BASE64,
-    BASE45
+	BASE64,
+	BASE45
 }
 
 data class EncodingScreenState(
-    val inputText: MutableStateFlow<String> = MutableStateFlow(""),
-    val outputText: MutableStateFlow<String> = MutableStateFlow(""),
-    val selectedAlgorithm: MutableStateFlow<Encoding> = MutableStateFlow(Encoding.BASE64),
-    val autoConvert: MutableStateFlow<Boolean> = MutableStateFlow(false),
-    val dropdownState: MenuState = MenuState(expanded = false)
+	val inputText: MutableStateFlow<String> = MutableStateFlow(""),
+	val outputText: MutableStateFlow<String> = MutableStateFlow(""),
+	val selectedAlgorithm: MutableStateFlow<Encoding> = MutableStateFlow(Encoding.BASE64),
+	val autoConvert: MutableStateFlow<Boolean> = MutableStateFlow(false),
+	val dropdownState: MenuState = MenuState(expanded = false)
 )
 
 @Composable
 fun EncodingScreen(appState: AppState) {
 
-    val state = remember { EncodingScreenState() }
+	val state = remember { EncodingScreenState() }
 
-    var inputText by state.inputText.collectAsMutableState()
-    var outputText by state.outputText.collectAsMutableState()
-    var selectedEncoding by state.selectedAlgorithm.collectAsMutableState()
-    var autoConvert by state.autoConvert.collectAsMutableState()
+	var inputText by state.inputText.collectAsMutableState()
+	var outputText by state.outputText.collectAsMutableState()
+	var selectedEncoding by state.selectedAlgorithm.collectAsMutableState()
+	var autoConvert by state.autoConvert.collectAsMutableState()
 
-    var lastChangedIsInput: Boolean by remember { mutableStateOf(false) }
+	var lastChangedIsInput: Boolean by remember { mutableStateOf(false) }
 
-    val performEncoding = {
-        state.outputText.value = try {
-            when(selectedEncoding) {
-                Encoding.BASE64 -> Base64.encode(inputText.toByteArray())
-                Encoding.BASE45 -> Base45.encode(inputText.toByteArray())
-            }
-        } catch (e: Exception) {
-            "Error: ${e.localizedMessage}"
-        }
-    }
+	val performEncoding = {
+		state.outputText.value = try {
+			when (selectedEncoding) {
+				Encoding.BASE64 -> Base64.encode(inputText.toByteArray())
+				Encoding.BASE45 -> Base45.encode(inputText.toByteArray())
+			}
+		} catch (e: Exception) {
+			"Error: ${e.localizedMessage}"
+		}
+	}
 
-    val performDecoding = {
-        state.inputText.value = try {
-            String(
-                when (selectedEncoding) {
-                    Encoding.BASE64 -> Base64.decode(outputText)
-                    Encoding.BASE45 -> Base45.decode(outputText)
-                }
-            )
-        } catch (e: Exception) {
-            "Error: ${e.localizedMessage}"
-        }
-    }
+	val performDecoding = {
+		state.inputText.value = try {
+			String(
+				when (selectedEncoding) {
+					Encoding.BASE64 -> Base64.decode(outputText)
+					Encoding.BASE45 -> Base45.decode(outputText)
+				}
+			)
+		} catch (e: Exception) {
+			"Error: ${e.localizedMessage}"
+		}
+	}
 
-    LaunchedEffect(inputText, outputText, selectedEncoding, autoConvert) {
-        if (autoConvert) {
-            if (lastChangedIsInput)
-                performEncoding()
-            else
-                performDecoding()
-        }
-    }
+	LaunchedEffect(inputText, outputText, selectedEncoding, autoConvert) {
+		if (autoConvert) {
+			if (lastChangedIsInput)
+				performEncoding()
+			else
+				performDecoding()
+		}
+	}
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    )
-    {
-        Text("Encoding Tool")
+	Column(
+		modifier = Modifier
+			.fillMaxSize()
+			.padding(16.dp),
+		horizontalAlignment = Alignment.CenterHorizontally,
+		verticalArrangement = Arrangement.spacedBy(10.dp)
+	)
+	{
+		Text("Encoding Tool")
 
-        TextField(
-            value = inputText,
-            onValueChange = { inputText = it; lastChangedIsInput = true },
-            placeholder = "Decoded",
-            borderColor = LocalAppTheme.current.borderColor,
-            modifier = Modifier.fillMaxWidth().heightIn(150.dp),
-            singleLine = false,
-            contentPadding = PaddingValues(8.dp),
-            backgroundColor = LocalAppTheme.current.bg1Color,
-            shape = RoundedCornerShape(8.dp),
-            textAlign = TextAlign.Start
-        )
+		TextField(
+			value = inputText,
+			onValueChange = { inputText = it; lastChangedIsInput = true },
+			placeholder = "Decoded",
+			borderColor = LocalAppTheme.current.borderColor,
+			modifier = Modifier.fillMaxWidth().heightIn(150.dp),
+			singleLine = false,
+			contentPadding = PaddingValues(8.dp),
+			backgroundColor = LocalAppTheme.current.bg1Color,
+			shape = RoundedCornerShape(8.dp),
+			textAlign = TextAlign.Start
+		)
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Menu(
-                state = state.dropdownState
-            ) {
-                MenuButton(
-                    Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(LocalAppTheme.current.bg1Color)
-                        .border(1.dp, LocalAppTheme.current.borderColor, RoundedCornerShape(6.dp))
-                ) {
-                    Text(
-                        text = "Encoding: ${selectedEncoding.name}",
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                    )
-                }
-                MenuContent(
-                    modifier = Modifier.width(320.dp)
-                        .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-                        .background(LocalAppTheme.current.bg1Color)
-                        .padding(4.dp),
-                    exit = fadeOut()
-                ) {
-                    Encoding.entries.forEachIndexed { index, option ->
-                        MenuItem(
-                            modifier = Modifier.clip(RoundedCornerShape(4.dp)).fillMaxWidth(),
-                            onClick = { selectedEncoding = option }
-                        ) {
-                            Text(option.name)
-                        }
-                    }
-                }
-            }
+		Row(
+			modifier = Modifier.fillMaxWidth(),
+			verticalAlignment = Alignment.CenterVertically,
+			horizontalArrangement = Arrangement.SpaceBetween
+		) {
+			Menu(
+				state = state.dropdownState
+			) {
+				MenuButton(
+					Modifier
+						.clip(RoundedCornerShape(6.dp))
+						.background(LocalAppTheme.current.bg1Color)
+						.border(1.dp, LocalAppTheme.current.borderColor, RoundedCornerShape(6.dp))
+				) {
+					Text(
+						text = "Encoding: ${selectedEncoding.name}",
+						modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+					)
+				}
+				MenuContent(
+					modifier = Modifier.width(320.dp)
+						.border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
+						.background(LocalAppTheme.current.bg1Color)
+						.padding(4.dp),
+					exit = fadeOut()
+				) {
+					Encoding.entries.forEachIndexed { index, option ->
+						MenuItem(
+							modifier = Modifier.clip(RoundedCornerShape(4.dp)).fillMaxWidth(),
+							onClick = { selectedEncoding = option }
+						) {
+							Text(option.name)
+						}
+					}
+				}
+			}
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "Auto Convert",
-                    textAlign = TextAlign.Center
-                )
-                Checkbox(
-                    checked = autoConvert,
-                    onCheckedChange = { autoConvert = it },
-                    shape = RoundedCornerShape(4.dp),
-                    backgroundColor = LocalAppTheme.current.bg1Color,
-                    borderWidth = 1.dp,
-                    borderColor = LocalAppTheme.current.borderColor,
-                    modifier = Modifier.padding(horizontal = 8.dp).size(24.dp),
-                    contentDescription = "Auto Convert"
-                ) {
-                    Text(
-                        text = "✓",
-                        fontSize = 16.sp,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxSize()
-                            .wrapContentHeight(align = Alignment.CenterVertically)
-                            .padding(2.dp)
-                    )
-                }
+			Row(verticalAlignment = Alignment.CenterVertically) {
+				Text(
+					text = "Auto Convert",
+					textAlign = TextAlign.Center
+				)
+				Checkbox(
+					checked = autoConvert,
+					onCheckedChange = { autoConvert = it },
+					shape = RoundedCornerShape(4.dp),
+					backgroundColor = LocalAppTheme.current.bg1Color,
+					borderWidth = 1.dp,
+					borderColor = LocalAppTheme.current.borderColor,
+					modifier = Modifier.padding(horizontal = 8.dp).size(24.dp),
+					contentDescription = "Auto Convert"
+				) {
+					Text(
+						text = "✓",
+						fontSize = 16.sp,
+						textAlign = TextAlign.Center,
+						modifier = Modifier.fillMaxSize()
+							.wrapContentHeight(align = Alignment.CenterVertically)
+							.padding(2.dp)
+					)
+				}
 
-                Button(
-                    onClick = performEncoding,
-                    borderColor = LocalAppTheme.current.borderColor,
-                    borderWidth = 1.dp,
-                    backgroundColor = if (autoConvert) LocalAppTheme.current.disabledBgColor else LocalAppTheme.current.bg1Color,
-                    contentPadding = PaddingValues(8.dp),
-                    contentColor = if (autoConvert) LocalAppTheme.current.disabledTextColor else LocalContentColor.current,
-                    shape = RoundedCornerShape(6.dp),
-                    modifier = Modifier.padding(end = 8.dp),
-                    enabled = !autoConvert
-                ) {
-                    Text("Encode")
-                }
+				Button(
+					onClick = performEncoding,
+					borderColor = LocalAppTheme.current.borderColor,
+					borderWidth = 1.dp,
+					backgroundColor = if (autoConvert) LocalAppTheme.current.disabledBgColor else LocalAppTheme.current.bg1Color,
+					contentPadding = PaddingValues(8.dp),
+					contentColor = if (autoConvert) LocalAppTheme.current.disabledTextColor else LocalContentColor.current,
+					shape = RoundedCornerShape(6.dp),
+					modifier = Modifier.padding(end = 8.dp),
+					enabled = !autoConvert
+				) {
+					Text("Encode")
+				}
 
-                Button(
-                    onClick = performDecoding,
-                    borderColor = LocalAppTheme.current.borderColor,
-                    borderWidth = 1.dp,
-                    backgroundColor = if (autoConvert) LocalAppTheme.current.disabledBgColor else LocalAppTheme.current.bg1Color,
-                    contentPadding = PaddingValues(8.dp),
-                    contentColor = if (autoConvert) LocalAppTheme.current.disabledTextColor else LocalContentColor.current,
-                    shape = RoundedCornerShape(6.dp),
-                    enabled = !autoConvert
-                ) {
-                    Text("Decode")
-                }
-            }
-        }
+				Button(
+					onClick = performDecoding,
+					borderColor = LocalAppTheme.current.borderColor,
+					borderWidth = 1.dp,
+					backgroundColor = if (autoConvert) LocalAppTheme.current.disabledBgColor else LocalAppTheme.current.bg1Color,
+					contentPadding = PaddingValues(8.dp),
+					contentColor = if (autoConvert) LocalAppTheme.current.disabledTextColor else LocalContentColor.current,
+					shape = RoundedCornerShape(6.dp),
+					enabled = !autoConvert
+				) {
+					Text("Decode")
+				}
+			}
+		}
 
-        TextField(
-            value = outputText,
-            onValueChange = { outputText = it; lastChangedIsInput = false},
-            placeholder = "Encoded",
-            borderColor = LocalAppTheme.current.borderColor,
-            contentPadding = PaddingValues(8.dp),
-            backgroundColor = LocalAppTheme.current.bg1Color,
-            modifier = Modifier.fillMaxWidth().heightIn(150.dp),
-            editable = true,
-            singleLine = false,
-            shape = RoundedCornerShape(8.dp),
-        )
-    }
+		TextField(
+			value = outputText,
+			onValueChange = { outputText = it; lastChangedIsInput = false },
+			placeholder = "Encoded",
+			borderColor = LocalAppTheme.current.borderColor,
+			contentPadding = PaddingValues(8.dp),
+			backgroundColor = LocalAppTheme.current.bg1Color,
+			modifier = Modifier.fillMaxWidth().heightIn(150.dp),
+			editable = true,
+			singleLine = false,
+			shape = RoundedCornerShape(8.dp),
+		)
+	}
 }

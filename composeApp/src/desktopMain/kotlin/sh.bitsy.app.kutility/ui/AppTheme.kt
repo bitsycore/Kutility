@@ -1,5 +1,6 @@
 package sh.bitsy.app.kutility.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -9,6 +10,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.composeunstyled.LocalContentColor
+import sh.bitsy.app.kutility.ui.AppThemeType.DARK
+import sh.bitsy.app.kutility.ui.AppThemeType.LIGHT
+import sh.bitsy.app.kutility.ui.AppThemeType.SYSTEM
 
 enum class AppThemeType {
 	SYSTEM,
@@ -16,16 +20,24 @@ enum class AppThemeType {
 	DARK;
 }
 
+val AppThemeType.theme: AppTheme
+	@Composable
+	get() = when (this) {
+		SYSTEM -> if (isSystemInDarkTheme()) AppTheme.DARK else AppTheme.LIGHT
+		LIGHT -> AppTheme.LIGHT
+		DARK -> AppTheme.DARK
+	}
+
 val LocalAppTheme = staticCompositionLocalOf { AppTheme.LIGHT }
 
 @Composable
 fun ProvideTheme(
 	theme: AppTheme,
-	content: @Composable () -> Unit
+	content: @Composable (AppTheme) -> Unit
 ) {
 	CompositionLocalProvider(LocalAppTheme provides theme) {
 		CompositionLocalProvider(LocalContentColor provides theme.textColor) {
-			content()
+			content(theme)
 		}
 	}
 }
