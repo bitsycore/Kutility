@@ -1,11 +1,11 @@
 package sh.bitsy.app.kutility.tools.encoding
 
-object Base45 {
+object Base45 : EncoderDecoder {
 	private val ALPHABET_ARRAY: CharArray = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:".toCharArray()
 	private val DECODING_TABLE: Map<Char, Int> = ALPHABET_ARRAY.mapIndexed { index, char -> char to index }.toMap()
 	private const val BASE = 45
 
-	fun encode(input: ByteArray): String {
+	override fun encode(input: ByteArray): String {
 		val result = StringBuilder()
 		var i = 0
 		val len = input.size
@@ -46,7 +46,7 @@ object Base45 {
 		return result.toString()
 	}
 
-	fun decode(input: String): ByteArray {
+	override fun decode(input: String): ByteArray {
 		if (input.isEmpty()) {
 			return ByteArray(0)
 		}
