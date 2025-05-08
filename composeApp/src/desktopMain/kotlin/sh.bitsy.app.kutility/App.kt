@@ -52,7 +52,7 @@ val coroutineScope = CoroutineScope(Dispatchers.IO)
 fun main() = application {
 
 	var alreadyLaunched = false
-	val cleanAndExitApp: () -> Unit = l@ {
+	val cleanAndExitApp: () -> Unit = l@{
 		if (alreadyLaunched) return@l
 		alreadyLaunched = true
 		coroutineScope.launch {
@@ -68,11 +68,15 @@ fun main() = application {
 	) {
 		val appState = remember { AppState() }
 		val currentThemeType by appState.themeType.collectAsState()
+		val autoConvert by appState.autoConvert.collectAsState()
 		MenuBar {
 			Menu("File", 'F') {
 				Item("Exit", mnemonic = 'Q', onClick = cleanAndExitApp)
 			}
 			Menu("Settings", 'S') {
+				Item("Auto by default", mnemonic = 'A', icon = if (autoConvert) painterResource(Res.drawable.compose_multiplatform) else null) {
+					appState.setAutoConvert(!autoConvert)
+				}
 				Menu("Theme", mnemonic = 'T') {
 					AppThemeType.entries.forEach { themeType ->
 						Item(

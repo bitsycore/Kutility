@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,18 +45,19 @@ import com.composeunstyled.Button
 import com.composeunstyled.Checkbox
 import com.composeunstyled.LocalContentColor
 import com.composeunstyled.Text
+import sh.bitsy.app.kutility.AppState
 import sh.bitsy.app.kutility.extensions.collectAsMutableState
 import sh.bitsy.app.kutility.ui.LocalAppTheme
 import sh.bitsy.app.kutility.ui.TextField
 
 @Composable
-fun EncodingScreen(state: EncodingScreenState = remember { EncodingScreenState() }) {
+fun EncodingScreen(appState: AppState, state: EncodingScreenState = remember { EncodingScreenState() }) {
 
 	var inputText by state.inputText.collectAsMutableState()
 	var outputText by state.outputText.collectAsMutableState()
 	var selectedEncoding by state.selectedAlgorithm.collectAsMutableState()
 	var selectedTextFormat by state.selectedTextFormat.collectAsMutableState()
-	var autoConvert by state.autoConvert.collectAsMutableState()
+	val autoConvert by appState.autoConvert.collectAsState()
 	var lastChangedIsInput: Boolean by remember { mutableStateOf(false) }
 	var screenSize by remember { mutableStateOf(DpSize.Zero) }
 	val density = LocalDensity.current
@@ -123,7 +125,7 @@ fun EncodingScreen(state: EncodingScreenState = remember { EncodingScreenState()
 			SelectedEncodingMenu({ selectedEncoding }) { selectedEncoding = it }
 			SelectedTextFormatMenu({ selectedTextFormat }, { screenSize }) { selectedTextFormat = it }
 			Row(verticalAlignment = Alignment.CenterVertically) {
-				AutoConvertCheckbox({ autoConvert }) { autoConvert = it }
+				AutoConvertCheckbox({ autoConvert }) { appState.setAutoConvert(it) }
 				EncodeDecodeButton(performEncoding, performDecoding) { autoConvert }
 			}
 		}
@@ -236,8 +238,8 @@ private fun SelectedTextFormatMenu(selectedTextFormat: () -> TextFormat, screenS
 				Box(
 					modifier = Modifier.fillMaxWidth()
 						.padding(12.dp)
-						.height(2.dp)
-						.background(LocalAppTheme.current.textColor.copy(alpha = 0.5f))
+						.height(1.dp)
+						.background(LocalAppTheme.current.textColor.copy(alpha = 0.1f))
 				)
 			TextFormat.available.second.forEachIndexed { index, option ->
 				MenuItem(

@@ -1,12 +1,7 @@
 package sh.bitsy.app.kutility.local
 
-abstract class KutilityStorage : LocalStorage() {
-	override val companyName: String = "sh.bitsy"
-	override val appName: String = "kutility"
-}
+private val KutilityPathProvider = SafeUserPathProvider("sh.bitsy", "kutility")
 
-object SettingsStorage : KutilityStorage() {
-	override val fileName: String = "settings"
-}
+object SettingsStorage : LocalStorage("settings", KutilityPathProvider.dir)
 
 suspend fun flushAllStorages() = SettingsStorage.flush()

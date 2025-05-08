@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -31,12 +32,10 @@ import com.composables.core.Menu
 import com.composables.core.MenuButton
 import com.composables.core.MenuContent
 import com.composables.core.MenuItem
-import com.composables.core.MenuState
 import com.composeunstyled.Button
 import com.composeunstyled.Checkbox
 import com.composeunstyled.LocalContentColor
 import com.composeunstyled.Text
-import kotlinx.coroutines.flow.MutableStateFlow
 import sh.bitsy.app.kutility.AppState
 import sh.bitsy.app.kutility.extensions.collectAsMutableState
 import sh.bitsy.app.kutility.extensions.toHex
@@ -44,14 +43,6 @@ import sh.bitsy.app.kutility.ui.LocalAppTheme
 import sh.bitsy.app.kutility.ui.TextField
 import java.security.MessageDigest.getInstance
 import java.security.NoSuchAlgorithmException
-
-data class HashScreenState(
-	val inputText: MutableStateFlow<String> = MutableStateFlow(""),
-	val outputText: MutableStateFlow<String> = MutableStateFlow(""),
-	val selectedAlgorithm: MutableStateFlow<HashAlgorithm> = MutableStateFlow(HashAlgorithm.defaultAlgorithm),
-	val autoConvert: MutableStateFlow<Boolean> = MutableStateFlow(false),
-	val dropdownState: MenuState = MenuState(expanded = false)
-)
 
 @Composable
 fun HashScreen(appState: AppState) {
@@ -61,7 +52,7 @@ fun HashScreen(appState: AppState) {
 	var inputText by state.inputText.collectAsMutableState()
 	var outputText by state.outputText.collectAsMutableState()
 	var selectedAlgorithm by state.selectedAlgorithm.collectAsMutableState()
-	var autoConvert by state.autoConvert.collectAsMutableState()
+	val autoConvert by appState.autoConvert.collectAsState()
 
 	val performHash = {
 		state.outputText.value = try {
@@ -148,7 +139,7 @@ fun HashScreen(appState: AppState) {
 				)
 				Checkbox(
 					checked = autoConvert,
-					onCheckedChange = { autoConvert = it },
+					onCheckedChange = { appState.setAutoConvert(it) },
 					shape = RoundedCornerShape(4.dp),
 					backgroundColor = LocalAppTheme.current.bg1Color,
 					borderWidth = 1.dp,

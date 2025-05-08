@@ -7,7 +7,7 @@ import sh.bitsy.app.kutility.tools.hash.HashScreen
 
 enum class Tools(val toolScreen: @Composable (appState: AppState) -> Unit, val enabled: Boolean = false) {
 	HASH(@Composable { HashScreen(it) }, true),
-	ENCODING(@Composable { EncodingScreen() }, true),
+	ENCODING(@Composable { EncodingScreen(it) }, true),
 	UUID(@Composable { TodoToolScreen() }),
 	FORMAT(@Composable { TodoToolScreen() }),
 	JSON(@Composable { TodoToolScreen() }),

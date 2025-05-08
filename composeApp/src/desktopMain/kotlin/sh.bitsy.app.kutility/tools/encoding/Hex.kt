@@ -1,6 +1,6 @@
 package sh.bitsy.app.kutility.tools.encoding
 
-object Base16 : EncoderDecoder {
+object Hex : EncoderDecoder {
 
 	override fun encode(input: ByteArray): String {
 		return input.joinToString("") { String.format("%02X", it) }
