@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,12 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.composables.core.HorizontalSeparator
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
 import com.composables.core.ThumbVisibility
@@ -115,39 +118,35 @@ private fun ToolsList(appState: AppState) {
 	ScrollArea(state = state, Modifier.wrapContentWidth()) {
 		LazyColumn(
 			state = lazyListState,
-			modifier = Modifier.width(100.dp)
+			modifier = Modifier.width(100.dp).padding(8.dp).shadow(4.dp, shape = RoundedCornerShape(8.dp)).clip(RoundedCornerShape(8.dp)),
 		) {
 			Tools.entries.forEach { tool ->
 				item(key = tool) {
-					val isSelected = currentTool == tool
 					Button(
-						enabled = !tool.enabled.not(),
+						enabled = tool.enabled,
 						onClick = { currentTool = tool },
 						contentColor = when {
-							tool.enabled.not() -> appTheme.disabledTextColor
-							!isSelected -> appTheme.textColor
-							else -> appTheme.textColor
+							!tool.enabled -> appTheme.disabledTextColor
+							currentTool != tool -> appTheme.textColor
+							else -> appTheme.selectedTextColor
 						},
 						backgroundColor = when {
-							tool.enabled.not() -> appTheme.disabledBgColor
-							!isSelected -> appTheme.grayColor
-							else -> appTheme.bg2Color
+							!tool.enabled -> appTheme.disabledBgColor
+							currentTool != tool -> appTheme.grayColor
+							else -> appTheme.selectedBgColor
 						},
-						contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+						borderColor = when {
+							!tool.enabled -> appTheme.disabledBgColor
+							currentTool != tool -> appTheme.borderColor
+							else -> appTheme.selectedBorderColor
+						},
+						borderWidth = 1.dp,
+						contentPadding = PaddingValues(horizontal = 0.dp, vertical = 12.dp),
 						modifier = Modifier.fillMaxWidth()
-							.drawWithContent {
-								drawContent()
-								val thickness = 1.dp.toPx()
-								drawLine(
-									color = appTheme.borderColor,
-									start = Offset(0f, size.height - thickness / 2),
-									end = Offset(size.width, size.height - thickness / 2),
-									strokeWidth = thickness
-								)
-							}
 					) {
 						Text(tool.name.lowercase().replaceFirstChar { it.uppercase() })
 					}
+					HorizontalSeparator(appTheme.borderColor)
 				}
 			}
 		}

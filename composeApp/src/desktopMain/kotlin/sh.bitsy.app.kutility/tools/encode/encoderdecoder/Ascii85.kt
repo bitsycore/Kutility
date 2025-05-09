@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility.tools.encoding
+package sh.bitsy.app.kutility.tools.encode.encoderdecoder
 
 import java.io.ByteArrayOutputStream
 

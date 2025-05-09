@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility.tools.encoding
+package sh.bitsy.app.kutility.tools.encode.encoderdecoder
 
 object Base45 : EncoderDecoder {
 	private val ALPHABET_ARRAY: CharArray = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:".toCharArray()

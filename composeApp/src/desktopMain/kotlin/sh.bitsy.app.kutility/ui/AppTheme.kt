@@ -49,6 +49,9 @@ data class AppTheme private constructor(
 	val bg1Color: Color,
 	val bg2Color: Color,
 	val borderColor: Color,
+	val selectedTextColor: Color,
+	val selectedBgColor: Color,
+	val selectedBorderColor: Color,
 	val disabledBgColor: Color,
 	val disabledTextColor: Color,
 	val grayColor: Color,
@@ -61,23 +64,29 @@ data class AppTheme private constructor(
 	companion object {
 		val LIGHT = AppTheme(
 			type = AppThemeType.LIGHT,
-			textColor = Color(0xFF000000),
-			bg1Color = Color(0xFFFFFFFF),
+			textColor = Color(0xff090909),
+			bg1Color = Color(0xfffbfafa),
 			bg2Color = Color(0xFFF0F0F0),
 			borderColor = Color(0xFFBDBDBD),
 			grayColor = Color(0xffcccccc),
 			disabledBgColor = Color(0xffaaaaaa),
 			disabledTextColor = Color(0xff858585),
+			selectedTextColor = Color(0xfffbfafa),
+			selectedBgColor = Color(0xff5a3d95),
+			selectedBorderColor = Color(0xffa38fcc),
 		)
 		val DARK = AppTheme(
 			type = AppThemeType.DARK,
-			textColor = Color(0xFFFFFFFF),
+			textColor = Color(0xfffbfafa),
 			bg1Color = Color(0xFF121212),
 			bg2Color = Color(0xFF1E1E1E),
 			borderColor = Color(0xff404040),
 			grayColor = Color(0xff333333),
 			disabledBgColor = Color(0xff373434),
 			disabledTextColor = Color(0xff595757),
+			selectedTextColor = Color(0xFF121212),
+			selectedBgColor = Color(0xffa38fcc),
+			selectedBorderColor = Color(0xff5a3d95),
 		)
 
 		init {

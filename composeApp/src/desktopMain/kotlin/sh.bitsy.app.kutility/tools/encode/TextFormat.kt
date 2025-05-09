@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility.tools.encoding
+package sh.bitsy.app.kutility.tools.encode
 
 import java.nio.charset.Charset
 

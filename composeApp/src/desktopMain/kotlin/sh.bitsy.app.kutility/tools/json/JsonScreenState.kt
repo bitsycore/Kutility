@@ -1,9 +1,8 @@
-package sh.bitsy.app.kutility.tools.hash
+package sh.bitsy.app.kutility.tools.json
 
 import kotlinx.coroutines.flow.MutableStateFlow
 
-data class HashScreenState(
+data class JsonScreenState(
 	val inputText: MutableStateFlow<String> = MutableStateFlow(""),
 	val outputText: MutableStateFlow<String> = MutableStateFlow(""),
-	val selectedAlgorithm: MutableStateFlow<HashAlgorithm> = MutableStateFlow(HashAlgorithm.defaultAlgorithm)
 )
