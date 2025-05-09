@@ -103,15 +103,15 @@ private fun FrameWindowScope.TopMenu(
 			Item("Exit", mnemonic = 'Q', onClick = cleanAndExitApp)
 		}
 		Menu("Settings", 'S') {
-			Item("Auto by default", mnemonic = 'A', icon = if (autoConvert) painterResource(Res.drawable.compose_multiplatform) else null) {
+			RadioButtonItem("Auto by default", mnemonic = 'A', selected = autoConvert) {
 				appState.setAutoConvert(!autoConvert)
 			}
 			Menu("Theme", mnemonic = 'T') {
 				AppThemeType.entries.forEach { themeType ->
-					Item(
+					RadioButtonItem(
 						text = themeType.name.lowercase().replaceFirstChar { it.uppercase() },
 						mnemonic = themeType.name.first(),
-						icon = if (themeType == currentThemeType) painterResource(Res.drawable.compose_multiplatform) else null,
+						selected = themeType == currentThemeType,
 					) {
 						appState.setThemeType(themeType)
 					}
