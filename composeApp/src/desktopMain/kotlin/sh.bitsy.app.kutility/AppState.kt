@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import sh.bitsy.app.kutility.local.SettingsStorage
-import sh.bitsy.app.kutility.tools.Tools
+import sh.bitsy.app.kutility.tools.ToolsType
 import sh.bitsy.app.kutility.ui.AppThemeType
 
 class AppState {
@@ -20,7 +20,7 @@ class AppState {
 		}
 	}
 
-	val selectedTool = MutableStateFlow(Tools.HASH)
+	val selectedTool = MutableStateFlow(ToolsType.HASH)
 	private val _themeType = MutableStateFlow(AppThemeType.SYSTEM)
 	val themeType = _themeType.asStateFlow()
 	private val _autoConvert = MutableStateFlow(false)

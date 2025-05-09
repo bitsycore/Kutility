@@ -1,9 +1,0 @@
-package sh.bitsy.app.kutility.tools.hash
-
-import kotlinx.coroutines.flow.MutableStateFlow
-
-data class HashScreenState(
-	val inputText: MutableStateFlow<String> = MutableStateFlow(""),
-	val outputText: MutableStateFlow<String> = MutableStateFlow(""),
-	val selectedAlgorithm: MutableStateFlow<HashAlgorithm> = MutableStateFlow(HashAlgorithm.defaultAlgorithm)
-)

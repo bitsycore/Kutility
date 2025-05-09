@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility.tools.json
+package sh.bitsy.app.kutility.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
@@ -13,23 +13,22 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import sh.bitsy.app.kutility.AppState
-import sh.bitsy.app.kutility.extensions.collectAsMutableState
-import sh.bitsy.app.kutility.tools.AutoConvertCheckbox
-import sh.bitsy.app.kutility.tools.ButtonKuti
-import sh.bitsy.app.kutility.tools.ContentKuti
-import sh.bitsy.app.kutility.tools.RowButtonKuti
-import sh.bitsy.app.kutility.tools.TextFieldKuti
+import sh.bitsy.app.kutility.ui.AutoConvertCheckbox
+import sh.bitsy.app.kutility.ui.ButtonKuti
+import sh.bitsy.app.kutility.ui.ContentKuti
+import sh.bitsy.app.kutility.ui.RowButtonKuti
+import sh.bitsy.app.kutility.ui.TextFieldKuti
 
 private val PRETTIFY_JSON = Json { prettyPrint = true }
 private val MINIFY_JSON = Json { prettyPrint = false }
 
 @Composable
-fun JsonScreen(appState: AppState, state: JsonScreenState = remember { JsonScreenState() }) {
-
-	var inputText by state.inputText.collectAsMutableState()
-	var outputText by state.outputText.collectAsMutableState()
-	val autoConvert by appState.autoConvert.collectAsState()
+fun JsonScreen(appState: AppState) {
+	var inputText by remember { mutableStateOf("") }
+	var outputText by remember { mutableStateOf("") }
 	var lastChangedIsInput: Boolean by remember { mutableStateOf(false) }
+
+	val autoConvert by appState.autoConvert.collectAsState()
 
 	val minify = {
 		if (inputText.isNotEmpty()) {

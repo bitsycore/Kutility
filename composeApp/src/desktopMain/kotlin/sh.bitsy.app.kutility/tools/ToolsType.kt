@@ -2,11 +2,12 @@ package sh.bitsy.app.kutility.tools
 
 import androidx.compose.runtime.Composable
 import sh.bitsy.app.kutility.AppState
-import sh.bitsy.app.kutility.tools.encode.EncodeScreen
-import sh.bitsy.app.kutility.tools.hash.HashScreen
-import sh.bitsy.app.kutility.tools.json.JsonScreen
+import sh.bitsy.app.kutility.screens.EncodeScreen
+import sh.bitsy.app.kutility.screens.HashScreen
+import sh.bitsy.app.kutility.screens.JsonScreen
+import sh.bitsy.app.kutility.ui.TodoToolScreen
 
-enum class Tools(val toolScreen: @Composable (appState: AppState) -> Unit, val enabled: Boolean = false) {
+enum class ToolsType(val toolScreen: @Composable (appState: AppState) -> Unit, val enabled: Boolean = false) {
 	HASH(@Composable { HashScreen(it) }, true),
 	ENCODE(@Composable { EncodeScreen(it) }, true),
 	JSON(@Composable { JsonScreen(it) }, true),

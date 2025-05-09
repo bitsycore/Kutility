@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalEncodingApi::class)
 
-package sh.bitsy.app.kutility.tools.encode.encoderdecoder
+package sh.bitsy.app.kutility.tools.encoderdecoder
 
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.io.encoding.Base64 as Base64KTX

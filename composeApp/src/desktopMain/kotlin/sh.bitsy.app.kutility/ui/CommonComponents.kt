@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility.tools
+package sh.bitsy.app.kutility.ui
 
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -42,8 +42,6 @@ import com.composeunstyled.Checkbox
 import com.composeunstyled.LocalContentColor
 import com.composeunstyled.Text
 import sh.bitsy.app.kutility.AppState
-import sh.bitsy.app.kutility.ui.LocalAppTheme
-import sh.bitsy.app.kutility.ui.TextField
 
 @Composable
 fun TodoToolScreen() = Box(Modifier.fillMaxSize()) {

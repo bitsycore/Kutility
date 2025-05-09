@@ -1,6 +1,4 @@
-@file:JvmName("EncodeScreenStateKt")
-
-package sh.bitsy.app.kutility.tools.encode
+package sh.bitsy.app.kutility.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -12,31 +10,31 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.DpSize
 import sh.bitsy.app.kutility.AppState
-import sh.bitsy.app.kutility.extensions.collectAsMutableState
-import sh.bitsy.app.kutility.tools.AutoConvertCheckbox
-import sh.bitsy.app.kutility.tools.ButtonKuti
-import sh.bitsy.app.kutility.tools.ContentKuti
-import sh.bitsy.app.kutility.tools.ExpandedMenuKuti
-import sh.bitsy.app.kutility.tools.MenuItemKuti
-import sh.bitsy.app.kutility.tools.RowButtonKuti
-import sh.bitsy.app.kutility.tools.SeparatorKuti
-import sh.bitsy.app.kutility.tools.TextFieldKuti
+import sh.bitsy.app.kutility.tools.EncodeFormat
+import sh.bitsy.app.kutility.tools.TextFormat
+import sh.bitsy.app.kutility.ui.AutoConvertCheckbox
+import sh.bitsy.app.kutility.ui.ButtonKuti
+import sh.bitsy.app.kutility.ui.ContentKuti
+import sh.bitsy.app.kutility.ui.ExpandedMenuKuti
+import sh.bitsy.app.kutility.ui.MenuItemKuti
+import sh.bitsy.app.kutility.ui.RowButtonKuti
+import sh.bitsy.app.kutility.ui.SeparatorKuti
+import sh.bitsy.app.kutility.ui.TextFieldKuti
 
 @Composable
-fun EncodeScreen(appState: AppState, state: EncodingScreenState = remember { EncodingScreenState() }) {
+fun EncodeScreen(appState: AppState) {
 
-	var inputText by state.inputText.collectAsMutableState()
-	var outputText by state.outputText.collectAsMutableState()
-	var selectedEncoding by state.selectedAlgorithm.collectAsMutableState()
-	var selectedTextFormat by state.selectedTextFormat.collectAsMutableState()
+	var inputText by remember { mutableStateOf("") }
+	var outputText by remember { mutableStateOf("") }
+	var selectedEncoding by remember { mutableStateOf(EncodeFormat.BASE64) }
+	var selectedTextFormat by remember { mutableStateOf(TextFormat.Companion.default) }
+
 	val autoConvert by appState.autoConvert.collectAsState()
 	var lastChangedIsInput: Boolean by remember { mutableStateOf(false) }
-	var screenSize by remember { mutableStateOf(DpSize.Zero) }
 
 	val performEncoding = {
-		state.outputText.value = try {
+		outputText = try {
 			selectedEncoding.encoder.encode(inputText.toByteArray(selectedTextFormat.charset))
 		} catch (e: Exception) {
 			"Error: ${e.localizedMessage}"
@@ -44,7 +42,7 @@ fun EncodeScreen(appState: AppState, state: EncodingScreenState = remember { Enc
 	}
 
 	val performDecoding = {
-		state.inputText.value = try {
+		inputText = try {
 			String(selectedEncoding.encoder.decode(outputText), selectedTextFormat.charset)
 		} catch (e: Exception) {
 			"Error: ${e.localizedMessage}"
@@ -71,7 +69,7 @@ fun EncodeScreen(appState: AppState, state: EncodingScreenState = remember { Enc
 		RowButtonKuti(Arrangement.SpaceBetween) {
 
 			ExpandedMenuKuti("Encoding: ${selectedEncoding.name}") {
-				EncodingFormat.entries.forEachIndexed { index, option ->
+				EncodeFormat.entries.forEachIndexed { index, option ->
 					MenuItemKuti(
 						option.name,
 						onClick = { selectedEncoding = option }
@@ -80,14 +78,14 @@ fun EncodeScreen(appState: AppState, state: EncodingScreenState = remember { Enc
 			}
 
 			ExpandedMenuKuti("Text Format: ${selectedTextFormat.name}") {
-				TextFormat.available.first.forEachIndexed { index, option ->
+				TextFormat.Companion.available.first.forEachIndexed { index, option ->
 					MenuItemKuti(
 						option.name,
 						onClick = { selectedTextFormat = option }
 					)
 				}
 				SeparatorKuti()
-				TextFormat.available.second.forEachIndexed { index, option ->
+				TextFormat.Companion.available.second.forEachIndexed { index, option ->
 					MenuItemKuti(
 						option.name,
 						onClick = { selectedTextFormat = option }
@@ -104,7 +102,7 @@ fun EncodeScreen(appState: AppState, state: EncodingScreenState = remember { Enc
 
 		TextFieldKuti(
 			placeHolder = "Encoding",
-			textValue = { selectedEncoding.name },
+			textValue = { outputText },
 			onTextChange = { outputText = it; lastChangedIsInput = false }
 		)
 	}

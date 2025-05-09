@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility.tools.encode.encoderdecoder
+package sh.bitsy.app.kutility.tools.encoderdecoder
 
 object Hex : EncoderDecoder {
 

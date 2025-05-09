@@ -1,5 +1,6 @@
 package sh.bitsy.app.kutility
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
@@ -42,7 +44,7 @@ import kutility.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import sh.bitsy.app.kutility.extensions.collectAsMutableState
 import sh.bitsy.app.kutility.local.flushAllStorages
-import sh.bitsy.app.kutility.tools.Tools
+import sh.bitsy.app.kutility.tools.ToolsType
 import sh.bitsy.app.kutility.ui.AppThemeType
 import sh.bitsy.app.kutility.ui.LocalAppTheme
 import sh.bitsy.app.kutility.ui.ProvideTheme
@@ -72,27 +74,7 @@ fun main() = application {
 		val appState = remember { AppState() }
 		val currentThemeType by appState.themeType.collectAsState()
 		val autoConvert by appState.autoConvert.collectAsState()
-		MenuBar {
-			Menu("File", 'F') {
-				Item("Exit", mnemonic = 'Q', onClick = cleanAndExitApp)
-			}
-			Menu("Settings", 'S') {
-				Item("Auto by default", mnemonic = 'A', icon = if (autoConvert) painterResource(Res.drawable.compose_multiplatform) else null) {
-					appState.setAutoConvert(!autoConvert)
-				}
-				Menu("Theme", mnemonic = 'T') {
-					AppThemeType.entries.forEach { themeType ->
-						Item(
-							text = themeType.name.lowercase().replaceFirstChar { it.uppercase() },
-							mnemonic = themeType.name.first(),
-							icon = if (themeType == currentThemeType) painterResource(Res.drawable.compose_multiplatform) else null,
-						) {
-							appState.setThemeType(themeType)
-						}
-					}
-				}
-			}
-		}
+		TopMenu(cleanAndExitApp, autoConvert, appState, currentThemeType)
 		ProvideTheme(currentThemeType.theme) { theme ->
 			Row(
 				Modifier.fillMaxWidth().diagonalPattern(
@@ -101,8 +83,8 @@ fun main() = application {
 					stripeWidth = theme.bgStripWidth,
 				)
 			) {
-				ToolsList(appState)
-				CurrentTool(appState)
+				LeftToolList(appState)
+				RightCurrentTool(appState)
 			}
 		}
 
@@ -110,7 +92,37 @@ fun main() = application {
 }
 
 @Composable
-private fun ToolsList(appState: AppState) {
+private fun FrameWindowScope.TopMenu(
+	cleanAndExitApp: () -> Unit,
+	autoConvert: Boolean,
+	appState: AppState,
+	currentThemeType: AppThemeType
+) {
+	MenuBar {
+		Menu("File", 'F') {
+			Item("Exit", mnemonic = 'Q', onClick = cleanAndExitApp)
+		}
+		Menu("Settings", 'S') {
+			Item("Auto by default", mnemonic = 'A', icon = if (autoConvert) painterResource(Res.drawable.compose_multiplatform) else null) {
+				appState.setAutoConvert(!autoConvert)
+			}
+			Menu("Theme", mnemonic = 'T') {
+				AppThemeType.entries.forEach { themeType ->
+					Item(
+						text = themeType.name.lowercase().replaceFirstChar { it.uppercase() },
+						mnemonic = themeType.name.first(),
+						icon = if (themeType == currentThemeType) painterResource(Res.drawable.compose_multiplatform) else null,
+					) {
+						appState.setThemeType(themeType)
+					}
+				}
+			}
+		}
+	}
+}
+
+@Composable
+private fun LeftToolList(appState: AppState) {
 	val appTheme = LocalAppTheme.current
 	val lazyListState = rememberLazyListState()
 	val state = rememberScrollAreaState(lazyListState)
@@ -118,9 +130,12 @@ private fun ToolsList(appState: AppState) {
 	ScrollArea(state = state, Modifier.wrapContentWidth()) {
 		LazyColumn(
 			state = lazyListState,
-			modifier = Modifier.width(100.dp).padding(8.dp).shadow(4.dp, shape = RoundedCornerShape(8.dp)).clip(RoundedCornerShape(8.dp)),
+			modifier = Modifier.width(100.dp)
+				.padding(8.dp)
+				.shadow(4.dp, shape = RoundedCornerShape(8.dp))
+				.clip(RoundedCornerShape(8.dp)),
 		) {
-			Tools.entries.forEach { tool ->
+			ToolsType.entries.forEach { tool ->
 				item(key = tool) {
 					Button(
 						enabled = tool.enabled,
@@ -168,7 +183,9 @@ private fun ToolsList(appState: AppState) {
 }
 
 @Composable
-fun CurrentTool(appState: AppState) {
+fun RightCurrentTool(appState: AppState) {
 	val currentTool by appState.selectedTool.collectAsState()
-	currentTool.toolScreen(appState)
+	AnimatedContent(currentTool) {
+		it.toolScreen(appState)
+	}
 }

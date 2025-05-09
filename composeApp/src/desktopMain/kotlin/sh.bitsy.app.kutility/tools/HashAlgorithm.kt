@@ -1,4 +1,4 @@
-package sh.bitsy.app.kutility.tools.hash
+package sh.bitsy.app.kutility.tools
 
 import java.security.Security
 
