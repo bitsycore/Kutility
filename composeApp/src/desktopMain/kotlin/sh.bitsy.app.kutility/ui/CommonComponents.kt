@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,7 +39,6 @@ import com.composeunstyled.Button
 import com.composeunstyled.Checkbox
 import com.composeunstyled.LocalContentColor
 import com.composeunstyled.Text
-import sh.bitsy.app.kutility.AppState
 
 @Composable
 fun TodoToolScreen() = Box(Modifier.fillMaxSize()) {
@@ -49,35 +46,17 @@ fun TodoToolScreen() = Box(Modifier.fillMaxSize()) {
 }
 
 @Composable
-private fun TitleKuti(appState: AppState) = Box(
-	modifier = Modifier
-		.shadow(4.dp, shape = RoundedCornerShape(8.dp))
-		.background(LocalAppTheme.current.grayColor, shape = RoundedCornerShape(8.dp))
-		.widthIn(200.dp)
-		.padding(8.dp),
-	contentAlignment = Alignment.Center,
-) {
-	Text(
-		appState.selectedTool.value.name.lowercase().replaceFirstChar { it.uppercase() },
-		fontSize = 24.sp,
-		textAlign = TextAlign.Center,
-	)
-}
-
-@Composable
-fun ContentKuti(appState: AppState, content: @Composable ColumnScope.() -> Unit) = Column(
+fun ContentKuti(content: @Composable ColumnScope.() -> Unit) = Column(
 	modifier = Modifier
 		.fillMaxSize()
 		.padding(8.dp),
 	horizontalAlignment = Alignment.CenterHorizontally,
 	verticalArrangement = Arrangement.spacedBy(10.dp),
-) {
-	TitleKuti(appState)
-	content()
-}
+	content = content
+)
 
 @Composable
-fun AutoConvertCheckbox(autoConvert: () -> Boolean, setAutoConvert: (Boolean) -> Unit) = Row {
+fun AutoConvertCheckbox(autoConvert: () -> Boolean, setAutoConvert: (Boolean) -> Unit) = Row(verticalAlignment = Alignment.CenterVertically) {
 	Text(
 		text = "Auto Convert",
 		textAlign = TextAlign.Center
@@ -89,7 +68,7 @@ fun AutoConvertCheckbox(autoConvert: () -> Boolean, setAutoConvert: (Boolean) ->
 		backgroundColor = LocalAppTheme.current.bg1Color,
 		borderWidth = 1.dp,
 		borderColor = LocalAppTheme.current.borderColor,
-		modifier = Modifier.padding(horizontal = 8.dp).size(24.dp),
+		modifier = Modifier.padding(horizontal = 8.dp).size(24.dp).shadow(1.dp, shape = RoundedCornerShape(4.dp)),
 		contentDescription = "Auto Convert"
 	) {
 		Text(
@@ -109,7 +88,9 @@ fun TextFieldKuti(placeHolder: String, textValue: () -> String, oneLine: Boolean
 	onValueChange = onTextChange,
 	placeholder = placeHolder,
 	borderColor = LocalAppTheme.current.borderColor,
-	modifier = if (oneLine) Modifier.fillMaxWidth().wrapContentHeight() else Modifier.fillMaxWidth().heightIn(150.dp),
+	modifier = Modifier.fillMaxWidth()
+		.then(if (oneLine) Modifier.wrapContentHeight() else Modifier.heightIn(150.dp))
+		.shadow(1.dp, shape = RoundedCornerShape(8.dp)),
 	singleLine = oneLine,
 	contentPadding = PaddingValues(8.dp),
 	backgroundColor = LocalAppTheme.current.bg1Color,
@@ -134,8 +115,8 @@ fun ButtonKuti(buttonText: String, onClick: () -> Unit, disabled: Boolean) = But
 	backgroundColor = if (disabled) LocalAppTheme.current.disabledBgColor else LocalAppTheme.current.bg1Color,
 	contentPadding = PaddingValues(8.dp),
 	contentColor = if (disabled) LocalAppTheme.current.disabledTextColor else LocalContentColor.current,
-	shape = RoundedCornerShape(6.dp),
-	modifier = Modifier.padding(end = 8.dp),
+	shape = RoundedCornerShape(8.dp),
+	modifier = Modifier.padding(end = 8.dp).shadow(1.dp, shape = RoundedCornerShape(8.dp)),
 	enabled = !disabled
 ) {
 	Text(buttonText)
@@ -146,9 +127,9 @@ fun ButtonKuti(buttonText: String, onClick: () -> Unit, disabled: Boolean) = But
 fun ExpandedMenuKuti(title: String, contents: @Composable MenuScope.() -> Unit) = Menu(state = rememberMenuState()) {
 	MenuButton(
 		Modifier
-			.clip(RoundedCornerShape(6.dp))
-			.background(LocalAppTheme.current.bg1Color)
-			.border(1.dp, LocalAppTheme.current.borderColor, RoundedCornerShape(6.dp))
+			.shadow(1.dp, shape = RoundedCornerShape(8.dp))
+			.background(LocalAppTheme.current.bg1Color, shape = RoundedCornerShape(8.dp))
+			.border(1.dp, LocalAppTheme.current.borderColor, RoundedCornerShape(8.dp))
 	) {
 		Text(
 			text = title,
@@ -157,8 +138,9 @@ fun ExpandedMenuKuti(title: String, contents: @Composable MenuScope.() -> Unit) 
 	}
 	MenuContent(
 		modifier = Modifier.width(320.dp)
-			.border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
-			.background(LocalAppTheme.current.bg1Color)
+			.border(1.dp, LocalAppTheme.current.borderColor, RoundedCornerShape(8.dp))
+			.shadow(1.dp, shape = RoundedCornerShape(8.dp))
+			.background(LocalAppTheme.current.bg1Color, shape = RoundedCornerShape(8.dp))
 			.padding(4.dp)
 			.heightIn(max = 175.dp)
 			.verticalScroll(rememberScrollState()),

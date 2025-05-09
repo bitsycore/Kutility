@@ -58,9 +58,6 @@ data class AppTheme private constructor(
 	val bgStripWidth: Dp = 3.dp,
 	val buttonShape: Shape = RoundedCornerShape(8.dp)//(8.dp),
 ) {
-	private var _invertTheme: AppTheme? = null
-	val invertTheme: AppTheme get() = _invertTheme!!
-
 	companion object {
 		val LIGHT = AppTheme(
 			type = AppThemeType.LIGHT,
@@ -88,10 +85,5 @@ data class AppTheme private constructor(
 			selectedBgColor = Color(0xffa38fcc),
 			selectedBorderColor = Color(0xff5a3d95),
 		)
-
-		init {
-			LIGHT._invertTheme = DARK
-			DARK._invertTheme = LIGHT
-		}
 	}
 }

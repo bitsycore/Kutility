@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -21,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
@@ -132,8 +132,8 @@ private fun LeftToolList(appState: AppState) {
 			state = lazyListState,
 			modifier = Modifier.width(100.dp)
 				.padding(8.dp)
-				.shadow(4.dp, shape = RoundedCornerShape(8.dp))
-				.clip(RoundedCornerShape(8.dp)),
+				.border(1.dp, appTheme.borderColor, shape = RoundedCornerShape(8.dp))
+				.shadow(1.dp, shape = RoundedCornerShape(8.dp))
 		) {
 			ToolsType.entries.forEach { tool ->
 				item(key = tool) {
@@ -147,7 +147,7 @@ private fun LeftToolList(appState: AppState) {
 						},
 						backgroundColor = when {
 							!tool.enabled -> appTheme.disabledBgColor
-							currentTool != tool -> appTheme.grayColor
+							currentTool != tool -> appTheme.bg1Color
 							else -> appTheme.selectedBgColor
 						},
 						borderColor = when {

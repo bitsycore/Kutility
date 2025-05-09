@@ -62,7 +62,7 @@ fun JsonScreen(appState: AppState) {
 		}
 	}
 
-	ContentKuti(appState) {
+	ContentKuti() {
 		TextFieldKuti("Prettified", { inputText }) {
 			inputText = it
 			lastChangedIsInput = true

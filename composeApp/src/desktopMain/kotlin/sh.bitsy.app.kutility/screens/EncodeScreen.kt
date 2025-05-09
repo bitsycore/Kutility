@@ -58,7 +58,7 @@ fun EncodeScreen(appState: AppState) {
 		}
 	}
 
-	ContentKuti(appState) {
+	ContentKuti() {
 
 		TextFieldKuti(
 			placeHolder = "Decoded",

@@ -48,7 +48,7 @@ fun HashScreen(appState: AppState) {
 		}
 	}
 
-	ContentKuti(appState) {
+	ContentKuti() {
 
 		TextFieldKuti(
 			placeHolder = "Input Text",
