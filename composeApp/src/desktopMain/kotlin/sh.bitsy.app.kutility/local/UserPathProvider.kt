@@ -2,7 +2,7 @@ package sh.bitsy.app.kutility.local
 
 import java.io.File
 
-class SafeUserPathProvider(private val companyName: String, private val appName: String) {
+class UserPathProvider(private val companyName: String, private val appName: String) {
 
 	private enum class OS { WINDOWS, MACOS, LINUX_OR_OTHER }
 

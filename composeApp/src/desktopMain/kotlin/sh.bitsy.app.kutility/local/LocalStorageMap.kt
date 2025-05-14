@@ -10,20 +10,21 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.serializer
 import java.io.File
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
-abstract class LocalStorage(val filename: String, val path: File) {
+abstract class LocalStorageMap(val filename: String, val path: File) {
 	private val coroutineScope = CoroutineScope(Dispatchers.IO)
-	private val settingsAccessMutex = Mutex()
+	private val accessMapMutex = Mutex()
 	private val fileSaveMutex = Mutex()
-	private val jsonSerializer = Json { prettyPrint = true; ignoreUnknownKeys = true }
+	private val jsonSerializer = Json { prettyPrint = true; ignoreUnknownKeys = true; explicitNulls = false }
 	private var mapCache: MutableMap<String, JsonElement>? = null
 	private var pendingSaveJob: Job? = null
 
@@ -31,33 +32,43 @@ abstract class LocalStorage(val filename: String, val path: File) {
 		File(path, "$filename.json")
 	}
 
+
+
 	private suspend fun loadMapFromFile(): MutableMap<String, JsonElement> {
-		if (mapCache != null) {
-			return mapCache!!
-		} else {
-			return withContext(Dispatchers.IO) {
-				if (!file.exists() || file.length() == 0L) {
-					mapCache = mutableMapOf()
-					return@withContext mapCache!!
+		return mapCache ?: withContext(Dispatchers.IO) {
+
+			fun loadFromFile(targetFile: File): MutableMap<String, JsonElement>? = try {
+				if (!targetFile.exists() || targetFile.length() == 0L) null
+				else {
+					val content = targetFile.readText()
+					if (content.isBlank()) null
+					else jsonSerializer.decodeFromString<Map<String, JsonElement>>(content).toMutableMap()
 				}
-				try {
-					val fileContent = file.readText()
-					if (fileContent.isBlank()) {
-						mapCache = mutableMapOf()
-						return@withContext mapCache!!
-					}
-					mapCache = jsonSerializer.decodeFromString<Map<String, JsonElement>>(fileContent).toMutableMap()
-					mapCache!!
-				} catch (e: IOException) {
-					System.err.println("Error loading settings from $file: ${e.message}")
-					mapCache = mutableMapOf()
-					mapCache!!
-				} catch (e: SerializationException) {
-					System.err.println("Error deserializing settings from $file (file might be corrupted): ${e.message}")
-					file.renameTo(File("$file.corrupted.${System.currentTimeMillis()}"))
-					mapCache = mutableMapOf()
-					mapCache!!
-				}
+			} catch (e: IOException) {
+				System.err.println("Error reading settings from $targetFile: ${e.message}")
+				null
+			} catch (e: SerializationException) {
+				System.err.println("Error deserializing settings from $targetFile (possibly corrupted): ${e.message}")
+				val corruptedFile = File("${targetFile.absolutePath}.corrupted.${System.currentTimeMillis()}")
+				targetFile.renameTo(corruptedFile)
+				null
+			}
+
+			val mainFile = file
+			val backupFile = File("${file.absolutePath}.bak")
+
+			// Try main file
+			val loadedMap = loadFromFile(mainFile)
+
+			// Try backup if failed
+			val finalMap = if (loadedMap == null && backupFile.exists()) {
+				loadFromFile(backupFile)
+			} else {
+				loadedMap
+			}
+
+			return@withContext (finalMap ?: mutableMapOf()).also {
+				mapCache = it
 			}
 		}
 	}
@@ -67,13 +78,18 @@ abstract class LocalStorage(val filename: String, val path: File) {
 		fileSaveMutex.withLock {
 			try {
 				val tempFile = File("${file.absolutePath}.tmp")
-				tempFile.parentFile?.mkdirs()
+				val bakFile = File("${file.absolutePath}.bak")
 				val jsonString = jsonSerializer.encodeToString(currentMapToSave)
-				tempFile.writeText(jsonString)
-				if (file.exists()) {
-					file.delete()
+				tempFile.parentFile?.mkdirs()
+				tempFile.outputStream().use { output ->
+					output.write(jsonString.toByteArray())
+					output.flush()
+					output.fd.sync()
 				}
-				tempFile.renameTo(file)
+				if (file.exists()) {
+					Files.move(file.toPath(), bakFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+				}
+				Files.move(tempFile.toPath(), file.toPath(), StandardCopyOption.ATOMIC_MOVE)
 			} catch (e: IOException) {
 				System.err.println("Error saving settings to $file: ${e.message}")
 			} catch (e: SerializationException) {
@@ -86,7 +102,7 @@ abstract class LocalStorage(val filename: String, val path: File) {
 		waitForSave: Boolean,
 		isWriteOperation: Boolean = true,
 		crossinline block: suspend (settingsMap: MutableMap<String, JsonElement>) -> T
-	): T = settingsAccessMutex.withLock {
+	): T = accessMapMutex.withLock {
 		val map = loadMapFromFile()
 		val result = block(map)
 
@@ -213,7 +229,7 @@ abstract class LocalStorage(val filename: String, val path: File) {
 	}
 
 	suspend fun flush() {
-		settingsAccessMutex.withLock {
+		accessMapMutex.withLock {
 			pendingSaveJob?.join()
 			pendingSaveJob = null
 		}
