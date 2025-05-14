@@ -39,6 +39,7 @@ import com.composeunstyled.Button
 import com.composeunstyled.Checkbox
 import com.composeunstyled.LocalContentColor
 import com.composeunstyled.Text
+import com.composeunstyled.TextField
 
 @Composable
 fun TodoToolScreen() = Box(Modifier.fillMaxSize()) {
@@ -95,7 +96,8 @@ fun TextFieldKuti(placeHolder: String, textValue: () -> String, oneLine: Boolean
 	contentPadding = PaddingValues(8.dp),
 	backgroundColor = LocalAppTheme.current.bg1Color,
 	shape = RoundedCornerShape(8.dp),
-	textAlign = TextAlign.Start
+	textAlign = TextAlign.Start,
+	verticalAlignment = Alignment.Top,
 )
 
 
