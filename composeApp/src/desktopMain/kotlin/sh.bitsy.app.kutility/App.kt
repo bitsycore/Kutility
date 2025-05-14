@@ -41,7 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kutility.composeapp.generated.resources.Res
-import kutility.composeapp.generated.resources.compose_multiplatform
+import kutility.composeapp.generated.resources.kutility_icon_256
 import org.jetbrains.compose.resources.painterResource
 import sh.bitsy.app.kutility.extensions.collectAsMutableState
 import sh.bitsy.app.kutility.local.flushAllStorages
@@ -68,7 +68,7 @@ fun main() = application {
 	Window(
 		onCloseRequest = ::cleanAndExitApp,
 		title = "Kutility",
-		icon = painterResource(Res.drawable.compose_multiplatform),
+		icon = painterResource(Res.drawable.kutility_icon_256),
 	) {
 		val currentThemeType by appState.themeType.collectAsState()
 		ProvideAppTheme(currentThemeType) { theme ->
