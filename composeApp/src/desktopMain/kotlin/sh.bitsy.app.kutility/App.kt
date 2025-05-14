@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
@@ -47,35 +48,32 @@ import sh.bitsy.app.kutility.local.flushAllStorages
 import sh.bitsy.app.kutility.tools.ToolsType
 import sh.bitsy.app.kutility.ui.AppThemeType
 import sh.bitsy.app.kutility.ui.LocalAppTheme
-import sh.bitsy.app.kutility.ui.ProvideTheme
+import sh.bitsy.app.kutility.ui.ProvideAppTheme
 import sh.bitsy.app.kutility.ui.diagonalPattern
-import sh.bitsy.app.kutility.ui.theme
 import kotlin.time.Duration.Companion.seconds
 
-val coroutineScope = CoroutineScope(Dispatchers.IO)
+private val coroutineScope = CoroutineScope(Dispatchers.IO)
+private var alreadyLaunchedCleanAndExit = false
+private fun ApplicationScope.cleanAndExitApp() {
+	if (alreadyLaunchedCleanAndExit) return
+	alreadyLaunchedCleanAndExit = true
+	coroutineScope.launch {
+		flushAllStorages()
+		exitApplication()
+	}
+}
 
 fun main() = application {
-
-	var alreadyLaunched = false
-	val cleanAndExitApp: () -> Unit = l@{
-		if (alreadyLaunched) return@l
-		alreadyLaunched = true
-		coroutineScope.launch {
-			flushAllStorages()
-			exitApplication()
-		}
-	}
-
+	val appState = remember { AppState() }
 	Window(
-		onCloseRequest = cleanAndExitApp,
+		onCloseRequest = ::cleanAndExitApp,
 		title = "Kutility",
 		icon = painterResource(Res.drawable.compose_multiplatform),
 	) {
-		val appState = remember { AppState() }
 		val currentThemeType by appState.themeType.collectAsState()
-		val autoConvert by appState.autoConvert.collectAsState()
-		TopMenu(cleanAndExitApp, autoConvert, appState, currentThemeType)
-		ProvideTheme(currentThemeType.theme) { theme ->
+		ProvideAppTheme(currentThemeType) { theme ->
+			val autoConvert by appState.autoConvert.collectAsState()
+			TopMenu(::cleanAndExitApp, autoConvert, appState, currentThemeType)
 			Row(
 				Modifier.fillMaxWidth().diagonalPattern(
 					color1 = theme.bg1Color,

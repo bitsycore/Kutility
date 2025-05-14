@@ -1,5 +1,8 @@
 package sh.bitsy.app.kutility.ui
 
+import androidx.compose.foundation.DarkDefaultContextMenuRepresentation
+import androidx.compose.foundation.LightDefaultContextMenuRepresentation
+import androidx.compose.foundation.LocalContextMenuRepresentation
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -31,14 +34,27 @@ val AppThemeType.theme: AppTheme
 val LocalAppTheme = staticCompositionLocalOf { AppTheme.LIGHT }
 
 @Composable
-fun ProvideTheme(
-	theme: AppTheme,
-	content: @Composable (AppTheme) -> Unit
+inline fun ProvideAppTheme(
+	themeType: AppThemeType,
+	crossinline content: @Composable ((AppTheme) -> Unit)
 ) {
-	CompositionLocalProvider(LocalAppTheme provides theme) {
-		CompositionLocalProvider(LocalContentColor provides theme.textColor) {
-			content(theme)
-		}
+	val isDarkTheme = when(themeType) {
+		SYSTEM -> isSystemInDarkTheme()
+		LIGHT -> false
+		DARK -> true
+	}
+
+	val contextMenuRepresentation = when (isDarkTheme) {
+		false -> LightDefaultContextMenuRepresentation
+		true -> DarkDefaultContextMenuRepresentation
+	}
+
+	CompositionLocalProvider(
+		LocalAppTheme provides themeType.theme,
+		LocalContentColor provides themeType.theme.textColor,
+		LocalContextMenuRepresentation provides contextMenuRepresentation
+	) {
+		content(themeType.theme)
 	}
 }
 
